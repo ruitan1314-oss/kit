@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather in Rhythm | Year 4 Primary ESL Kit</title>
+  <title>Weather in Rhythm</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Vue 3 -->
@@ -313,7 +313,6 @@
                 <p class="text-xs text-amber-800 font-semibold mt-0.5">Tune: <em>Rain, Rain, Go Away</em></p>
               </div>
 
-              <!-- 伴奏按钮 -->
               <button @click="toggleMusic" 
                       class="px-4 py-2.5 rounded-2xl font-extrabold text-xs shadow-md transition flex items-center transform hover:scale-105 shrink-0"
                       :class="isPlayingMusic ? 'bg-rose-500 text-white animate-pulse' : 'bg-amber-400 hover:bg-amber-500 text-amber-950'">
@@ -533,10 +532,10 @@
               </span>,<br>
               It <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'rains'}" @click="pickWord('rains', 'Rains: Third-person singular form of rain')">rains</span> on the 
               <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'umbrellas'}" @click="pickWord('umbrellas', 'Umbrellas: Bright colorful canopies that keep us dry ☂️')">
-                <img src="umbrella-icon.png" onerror="this.src='https://api.iconify.design/noto:umbrella.svg'" class="w-7 h-7 inline object-contain" alt="umbrella">umbrellas
+                <img src="umbrella-icon.png" onerror="this.src='https://api.iconify.design/noto:umbrella.svg'" class="w-10 h-10 object-contain" alt="umbrella">umbrellas
               </span> here,<br>
               And on the <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'ships'}" @click="pickWord('ships', 'Ships: Big boats sailing upon blue waters 🚢')">
-                <img src="ship-icon.png" onerror="this.src='https://api.iconify.design/noto:passenger-ship.svg'" class="w-7 h-7 inline object-contain" alt="ship">ships
+                <img src="ship-icon.png" onerror="this.src='https://api.iconify.design/noto:passenger-ship.svg'" class="w-10 h-10 object-contain" alt="ship">ships
               </span> at 
               <span class="interactive-word font-bold text-blue-700" :class="{'bg-amber-200': activeWord === 'sea'}" @click="pickWord('sea', 'Sea: The great vast blue ocean! Rhymes with TREE! 🌊')">
                 <img src="sea-icon.png" onerror="this.src='https://api.iconify.design/noto:water-wave.svg'" class="w-7 h-7 inline object-contain" alt="sea">sea
@@ -823,7 +822,7 @@
 
     </main>
 
-    <!-- ================= 全屏涂鸦画室弹窗 (修复 Save & Exit 响应问题) ================= -->
+    <!-- ================= 全屏涂鸦画室弹窗 ================= -->
     <div v-if="showFullscreenCanvas" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col p-4 md:p-8">
       
       <div class="bg-white rounded-2xl p-4 shadow-lg flex flex-wrap items-center justify-between gap-3 mb-4">
@@ -883,7 +882,7 @@
 
     </div>
 
-    <!-- ================= 教师专区抽屉 (Teacher Zone Drawer - 包含声音设置与使用手册直达按钮) ================= -->
+    <!-- ================= 教师专区抽屉 (Teacher Zone Drawer - 纯粹精简，仅含老师声音设置 + 用户手册直达按钮) ================= -->
     <div v-if="showTeacherDrawer" class="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end">
       <div class="w-full max-w-lg bg-white h-full shadow-2xl p-6 md:p-8 overflow-y-auto space-y-6">
         
@@ -917,11 +916,12 @@
           <a href="Manual_Pengguna.html" target="_blank" 
              class="w-full py-3.5 px-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white rounded-2xl text-xs font-extrabold shadow-md flex items-center justify-center space-x-2 transition transform hover:scale-[1.02] active:scale-95 cursor-pointer decoration-0">
             <img src="book-icon.png" onerror="this.style.display='none'" class="w-5 h-5 object-contain mr-1" alt="Manual">
-            <span> View User Manual</span>
+            <span>📖 Buka Manual Pengguna (View User Manual)</span>
             <i class="fa-solid fa-arrow-up-right-from-square text-[11px] ml-1"></i>
           </a>
           <p class="text-[11px] text-slate-400 text-center mt-2">
-                     </p>
+            Klik untuk membuka dokumen panduan penggunaan lengkap untuk guru & murid.
+          </p>
         </div>
 
       </div>
@@ -929,7 +929,7 @@
 
     <!-- 底部声明 -->
     <footer class="bg-white/80 border-t border-sky-100 py-4 text-center text-xs text-slate-400">
-      <p>Weather in Rhythm: A Songs and Poems Resource Kit for Year 4 ESL • Academic Integrity Compliant</p>
+      <p>Weather in Rhythm: A Songs and Poems Resource Kit • Academic Integrity Compliant</p>
     </footer>
 
   </div>
@@ -1355,6 +1355,7 @@
           });
         };
 
+        // 修复：确保无论同步过程是否异常，全屏弹窗都能正常关闭并同步
         const closeFullscreenDraw = () => {
           try {
             if (fsCanvasRef.value && canvasRef.value) {
@@ -1432,6 +1433,7 @@
           isPainting.value = false;
         };
 
+        // 原生离线渲染合成下载，彻底消除本地文件协议（file:///）截图库报跨域及禁止访问的限制
         const saveCertificateAsImage = () => {
           try {
             const exportCanvas = document.createElement('canvas');
