@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather in Rhythm | Year 4 Primary ESL Kit</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- FontAwesome 图标库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- 绘本卡通圆润字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Nunito', sans-serif; }
+    h1, h2, h3, h4, .font-fun { font-family: 'Fredoka', cursive; }
+    .font-kid { font-family: 'Gaegu', cursive; }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(2deg); }
+    }
+    @keyframes pulseSoft {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.04); opacity: 1; }
+    }
+
+    .animate-float { animation: floatSlow 4s ease-in-out infinite; }
+    .animate-pulse-soft { animation: pulseSoft 3s ease-in-out infinite; }
+
+    .interactive-word {
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 10px;
+    }
+    .interactive-word:hover {
+      background-color: #FEF08A;
+      transform: scale(1.1) rotate(-2deg);
+    }
+    .img-bounce {
+      transition: transform 0.3s ease;
+    }
+    .img-bounce:hover {
+      transform: scale(1.12) rotate(3deg);
+    }
+
+    .draw-canvas { touch-action: none; }
+    .cursor-pen { cursor: crosshair; }
+    .cursor-eraser { cursor: grab; }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-sky-100 via-sky-50 to-blue-50 text-slate-800 min-h-screen flex flex-col">
+  <div id="app" class="flex flex-col min-h-screen">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b-2 border-sky-200/80 shadow-sm">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        
+        <!-- Logo 与标题 -->
+        <div class="flex items-center space-x-3 cursor-pointer shrink-0" @click="switchTab('home')">
+          <img src="sunny.png" onerror="this.src='https://api.iconify.design/noto:sun.svg'" class="w-12 h-12 animate-float object-contain" alt="Logo">
+          <div>
+            <h1 class="text-2xl font-bold text-sky-900 leading-none font-fun tracking-wide">Weather in Rhythm</h1>
+          </div>
+        </div>
+
+        <!-- 教学活动标签栏 -->
+        <nav class="hidden md:flex space-x-2">
+          <button @click="switchTab('home')" :class="tabClass('home')" class="flex items-center text-xs">
+            <img src="nav-home.png" onerror="this.src='https://api.iconify.design/noto:house.svg'" class="w-6 h-6 mr-1.5 object-contain img-bounce" alt="Home"> Home
+          </button>
+          <button @click="switchTab('act1')" :class="tabClass('act1')" class="flex items-center text-xs">
+            <img src="nav-move.png" onerror="this.src='https://api.iconify.design/noto:person-running.svg'" class="w-6 h-6 mr-1.5 object-contain img-bounce" alt="Move"> Act 1: Move!
+          </button>
+          <button @click="switchTab('act2')" :class="tabClass('act2')" class="flex items-center text-xs">
+            <img src="nav-hunt.png" onerror="this.src='https://api.iconify.design/noto:magnifying-glass-tilted-right.svg'" class="w-6 h-6 mr-1.5 object-contain img-bounce" alt="Hunt"> Act 2: Poem Hunt
+          </button>
+          <button @click="switchTab('act3')" :class="tabClass('act3')" class="flex items-center text-xs">
+            <img src="nav-studio.png" onerror="this.src='https://api.iconify.design/noto:artist-palette.svg'" class="w-6 h-6 mr-1.5 object-contain img-bounce" alt="Studio"> Act 3: Studio
+          </button>
+        </nav>
+
+        <!-- 声音测试、BGM控制与 Teacher Zone 按钮区 -->
+        <div class="flex items-center space-x-2 shrink-0">
+          
+          <!-- 背景音乐控制器 -->
+          <div class="hidden sm:flex items-center space-x-2 bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-900 shadow-2xs">
+            <button @click="toggleBgMusic" class="flex items-center space-x-1.5 hover:text-sky-600 transition" :title="isBgMusicPlaying ? 'Pause BGM' : 'Play BGM'">
+              <i :class="isBgMusicPlaying ? 'fa-solid fa-music text-emerald-600 animate-bounce' : 'fa-solid fa-music text-slate-400'"></i>
+              <span>BGM</span>
+            </button>
+            <input type="range" min="0" max="1" step="0.05" v-model="bgMusicVolume" @input="updateBgMusicVolume" class="w-16 h-1.5 accent-sky-500 bg-sky-200 rounded-lg cursor-pointer">
+            <span class="text-[10px] text-slate-500 w-6 text-right">{{ Math.round(bgMusicVolume * 100) }}%</span>
+          </div>
+
+          <button @click="testTeacherVoice" title="Click to test gentle teacher voice" class="px-3.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-950 rounded-xl text-xs font-extrabold border border-amber-300 flex items-center transition shadow-xs">
+            <img src="speaker-icon.png" onerror="this.style.display='none'" class="w-5 h-5 mr-1.5 object-contain" alt="Speaker"> Test Voice
+          </button>
+          <button @click="showTeacherDrawer = true" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl text-xs font-extrabold border border-indigo-200 flex items-center transition shadow-xs">
+            <img src="book-icon.png" onerror="this.style.display='none'" class="w-5 h-5 mr-1.5 object-contain" alt="Book"> Teacher Zone
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 移动端底部快捷导航 -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur border-t-2 border-sky-100 z-30 flex justify-around p-2 text-xs font-bold shadow-lg">
+      <button @click="switchTab('home')" :class="mobileTabClass('home')" class="flex flex-col items-center">
+        <img src="nav-home.png" onerror="this.src='https://api.iconify.design/noto:house.svg'" class="w-6 h-6 object-contain mb-0.5" alt="Home"><span>Home</span>
+      </button>
+      <button @click="switchTab('act1')" :class="mobileTabClass('act1')" class="flex flex-col items-center">
+        <img src="nav-move.png" onerror="this.src='https://api.iconify.design/noto:person-running.svg'" class="w-6 h-6 object-contain mb-0.5" alt="Act 1"><span>Act 1</span>
+      </button>
+      <button @click="switchTab('act2')" :class="mobileTabClass('act2')" class="flex flex-col items-center">
+        <img src="nav-hunt.png" onerror="this.src='https://api.iconify.design/noto:magnifying-glass-tilted-right.svg'" class="w-6 h-6 object-contain mb-0.5" alt="Act 2"><span>Act 2</span>
+      </button>
+      <button @click="switchTab('act3')" :class="mobileTabClass('act3')" class="flex flex-col items-center">
+        <img src="nav-studio.png" onerror="this.src='https://api.iconify.design/noto:artist-palette.svg'" class="w-6 h-6 object-contain mb-0.5" alt="Act 3"><span>Act 3</span>
+      </button>
+    </div>
+
+    <!-- 主展示区 -->
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-8 mb-16 md:mb-0">
+
+      <!-- ================= 0. 首页看板 (Home) ================= -->
+      <section v-if="currentTab === 'home'" class="space-y-8">
+        
+        <div class="relative bg-white rounded-3xl border-3 border-sky-200 shadow-md overflow-hidden grid grid-cols-1 md:grid-cols-12 items-center">
+          
+          <div class="p-8 md:p-10 md:col-span-7 text-left space-y-4">
+            <span class="px-4 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-widest border border-amber-300 inline-block">
+              ✨ Interactive Primary ESL Kit ✨
+            </span>
+            <h2 class="text-4xl md:text-5xl font-extrabold text-sky-950 font-fun leading-tight">
+              Weather in Rhythm
+            </h2>
+            <p class="text-slate-600 font-medium text-base leading-relaxed">
+              Sing, dance, and explore the weather with Teacher and friends! Listen to Stevenson's poem "Rain" and create your own rhyming poetry.
+            </p>
+
+            <div class="flex flex-wrap gap-3 pt-2">
+              <button @click="switchTab('act1')" class="px-7 py-3.5 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-slate-900 rounded-2xl font-extrabold text-sm shadow-md transition transform hover:scale-105 flex items-center">
+                <img src="rocket-icon.png" onerror="this.style.display='none'" class="w-6 h-6 mr-2 object-contain" alt="Rocket"> Start Adventure (Activity 1)
+              </button>
+              <button @click="showTeacherDrawer = true" class="px-5 py-3.5 bg-sky-50 hover:bg-sky-100 text-sky-800 border-2 border-sky-200 rounded-2xl font-bold text-sm shadow-xs transition flex items-center">
+                <img src="book-icon.png" onerror="this.style.display='none'" class="w-5 h-5 mr-2 object-contain" alt="Book"> Teacher Zone
+              </button>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 h-full bg-gradient-to-br from-amber-50 to-sky-100 p-4 flex items-center justify-center">
+            <img src="hero-classroom.png" 
+                 onerror="this.src='https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80'" 
+                 class="w-full max-w-sm rounded-2xl shadow-md border-2 border-white object-cover animate-pulse-soft" 
+                 alt="Weather Classroom Music">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div @click="switchTab('act1')" class="bg-white p-6 rounded-3xl border-2 border-amber-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col justify-between group">
+            <div>
+              <div class="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-4 border border-amber-100 shadow-inner">
+                <img src="sunny.png" class="w-12 h-12 object-contain img-bounce" alt="Sunny">
+              </div>
+              <span class="text-xs bg-amber-100 text-amber-900 px-2.5 py-1 rounded-md font-extrabold">TPR & Song</span>
+              <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1 font-fun">Move with Weather</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">Flip interactive cards, sing with sweet piano music, and solve 3D weather riddles!</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-amber-700 flex items-center group-hover:translate-x-1 transition-transform">
+              Enter Activity 1 <i class="fa-solid fa-arrow-right ml-1"></i>
+            </div>
+          </div>
+
+          <div @click="switchTab('act2')" class="bg-white p-6 rounded-3xl border-2 border-blue-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col justify-between group">
+            <div>
+              <div class="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mb-4 border border-blue-100 shadow-inner">
+                <img src="rainy.png" class="w-12 h-12 object-contain img-bounce" alt="Rainy">
+              </div>
+              <span class="text-xs bg-blue-100 text-blue-900 px-2.5 py-1 rounded-md font-extrabold">Poem & Rhymes</span>
+              <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1 font-fun">Weather Word Hunt</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">Read Stevenson's classic poem "Rain", tap colorful words, and discover rhyming friends!</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-blue-700 flex items-center group-hover:translate-x-1 transition-transform">
+              Enter Activity 2 <i class="fa-solid fa-arrow-right ml-1"></i>
+            </div>
+          </div>
+
+          <div @click="switchTab('act3')" class="bg-white p-6 rounded-3xl border-2 border-emerald-200 shadow-sm hover:shadow-md cursor-pointer transition flex flex-col justify-between group">
+            <div>
+              <div class="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4 border border-emerald-100 shadow-inner">
+                <img src="windy.png" class="w-12 h-12 object-contain img-bounce" alt="Windy">
+              </div>
+              <span class="text-xs bg-emerald-100 text-emerald-900 px-2.5 py-1 rounded-md font-extrabold">Creative Studio</span>
+              <h3 class="text-2xl font-bold text-slate-800 mt-2 mb-1 font-fun">Draw It, Write It!</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">Draw with digital crayons, compose your 4-line poem, and download your certificate!</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-bold text-emerald-700 flex items-center group-hover:translate-x-1 transition-transform">
+              Enter Activity 3 <i class="fa-solid fa-arrow-right ml-1"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 1. 活动一：Move with the Weather! ================= -->
+      <section v-if="currentTab === 'act1'" class="space-y-8">
+        <div class="flex items-center justify-between border-b-2 border-amber-200 pb-4">
+          <div>
+            <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Activity 1 • Listening & Speaking</span>
+            <h2 class="text-3xl font-extrabold text-slate-900 font-fun">Move with the Weather!</h2>
+          </div>
+          <button @click="switchTab('act2')" class="text-sm font-extrabold text-sky-800 hover:text-sky-950 bg-sky-100 hover:bg-sky-200 border border-sky-300 px-4 py-2 rounded-2xl flex items-center transition shadow-xs">
+            Go to Act 2 <i class="fa-solid fa-circle-arrow-right ml-2 text-sky-600"></i>
+          </button>
+        </div>
+
+        <div class="bg-gradient-to-r from-amber-100 via-orange-50 to-amber-50 p-6 md:p-8 rounded-3xl border-2 border-amber-300 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div class="md:col-span-5 flex justify-center">
+            <img src="teacher-flashcards.png" 
+                 class="w-full max-w-[280px] h-auto max-h-56 object-contain rounded-2xl border-4 border-white shadow-md bg-white p-1 transform -rotate-1 hover:rotate-0 transition duration-300" 
+                 alt="Teacher Flashcards">
+          </div>
+
+          <div class="md:col-span-7 space-y-2 text-left">
+            <span class="text-xs font-extrabold uppercase tracking-widest text-amber-900 bg-amber-200/80 px-3 py-1 rounded-full border border-amber-300 inline-block">
+              ☀️ Listening & Movement Discovery
+            </span>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-slate-900 font-fun leading-tight">
+              Meet the 4 Weather Friends!
+            </h3>
+            <p class="text-xs md:text-sm text-slate-600 font-bold leading-relaxed">
+              Look at the flashcards Teacher is holding! Tap each weather card below to hear the pronunciation, or flip the card to see the sentence.
+            </p>
+            <div class="pt-1 flex items-center text-xs font-extrabold text-amber-800">
+              <span class="bg-white px-3 py-1 rounded-xl shadow-xs border border-amber-200">
+                👆 Tap any card to flip & listen
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div v-for="w in weatherCards" :key="w.name" 
+               class="h-64 cursor-pointer" 
+               style="perspective: 1000px;" 
+               @click="flipCard(w)">
+            
+            <div class="relative w-full h-full rounded-3xl transition-transform duration-500 shadow-sm"
+                 :style="{ transformStyle: 'preserve-3d', transform: w.isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }">
+                
+              <div class="absolute inset-0 rounded-3xl border-2 p-5 flex flex-col justify-between items-center text-center shadow-xs"
+                   :class="w.frontClass"
+                   style="backface-visibility: hidden;">
+                <div class="w-20 h-20 relative flex items-center justify-center mt-1">
+                  <img :src="w.img" class="w-18 h-18 object-contain img-bounce" :alt="w.name">
+                </div>
+                <div>
+                  <div class="text-2xl font-extrabold font-fun" :class="w.titleColor">{{ w.name }}</div>
+                  <p class="text-xs mt-1" :class="w.subtitleColor">{{ w.brief }}</p>
+                </div>
+                <button @click.stop="toggleSpeakWordOnly(w)"
+                        class="px-4 py-1.5 rounded-full text-xs font-extrabold shadow-xs transition flex items-center"
+                        :class="w.isSpeakingFront ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : w.btnClass">
+                  <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-4 h-4 mr-1.5 object-contain" alt="speaker">
+                  {{ w.isSpeakingFront ? 'Pause' : 'Listen' }}
+                </button>
+              </div>
+
+              <div class="absolute inset-0 rounded-3xl border-2 p-5 flex flex-col justify-between items-center text-center shadow-xs bg-white"
+                   :class="w.backBorderClass"
+                   style="backface-visibility: hidden; transform: rotateY(180deg);">
+                <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full uppercase" :class="w.tagClass">
+                  ✨ {{ w.name }} Details
+                </span>
+                <div class="space-y-2 my-auto px-1">
+                  <div class="text-xs text-slate-600 font-bold leading-relaxed">
+                    💬 <span class="text-slate-800">"{{ w.sentence }}"</span>
+                  </div>
+                  <div class="text-[11px] text-slate-500 font-semibold p-2 rounded-xl bg-slate-50 border border-slate-100">
+                    🏃 <strong>Action:</strong> {{ w.actionDetail }}
+                  </div>
+                </div>
+                <div class="w-full flex items-center justify-between pt-1 border-t border-slate-100">
+                  <button @click.stop="toggleSpeakExplanation(w)"
+                          class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold shadow-xs transition flex items-center"
+                          :class="w.isSpeakingBack ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : w.btnClass">
+                    <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-4 h-4 mr-1.5 object-contain" alt="speaker">
+                    {{ w.isSpeakingBack ? 'Pause' : 'Read Sentence' }}
+                  </button>
+                  <span class="text-[10px] font-bold text-slate-400">Tap to flip back</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. 律动唱跳台 -->
+        <div class="bg-white p-6 md:p-8 rounded-3xl border-2 border-amber-200 shadow-sm space-y-6">
+          <div class="max-w-2xl mx-auto bg-amber-50/80 p-6 md:p-7 rounded-3xl border-2 border-amber-300 shadow-xs relative overflow-hidden">
+            <div class="mb-5 rounded-2xl overflow-hidden border-2 border-amber-200 shadow-xs bg-white flex items-center justify-center p-2">
+              <img src="girl-board.png" class="w-full max-h-52 object-contain rounded-xl" alt="Girl Pointing to Weather on Board">
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-5 gap-3">
+              <div class="text-left">
+                <h4 class="font-extrabold text-amber-950 font-fun text-2xl">🎵 Move with the Weather!</h4>
+                <p class="text-xs text-amber-800 font-semibold mt-0.5">Tune: <em>Rain, Rain, Go Away</em></p>
+              </div>
+
+              <!-- 伴奏按钮 -->
+              <button @click="toggleMusic" 
+                      class="px-4 py-2.5 rounded-2xl font-extrabold text-xs shadow-md transition flex items-center transform hover:scale-105 shrink-0"
+                      :class="isPlayingMusic ? 'bg-rose-500 text-white animate-pulse' : 'bg-amber-400 hover:bg-amber-500 text-amber-950'">
+                <i :class="isPlayingMusic ? 'fa-solid fa-pause mr-1.5' : 'fa-solid fa-play mr-1.5'"></i>
+                {{ isPlayingMusic ? 'Pause Music' : 'Play Accompaniment' }}
+              </button>
+            </div>
+
+            <div class="space-y-3.5 text-base md:text-lg font-bold text-slate-700 text-left">
+              <div class="p-3 bg-white rounded-2xl shadow-xs border border-amber-200 flex items-center justify-between">
+                <span class="flex items-center">
+                  <img src="sunny.png" class="w-8 h-8 mr-3 object-contain img-bounce" alt="Sunny">
+                  Sunny, sunny, touch the sky,
+                </span>
+                <span class="text-xs text-amber-800 bg-amber-100 font-extrabold px-3 py-1 rounded-lg">Reach High!</span>
+              </div>
+              <div class="p-3 bg-white rounded-2xl shadow-xs border border-amber-200 flex items-center justify-between">
+                <span class="flex items-center">
+                  <img src="rainy.png" class="w-8 h-8 mr-3 object-contain img-bounce" alt="Rainy">
+                  Rainy, rainy, hands down low,
+                </span>
+                <span class="text-xs text-blue-800 bg-blue-100 font-extrabold px-3 py-1 rounded-lg">Flutter Down!</span>
+              </div>
+              <div class="p-3 bg-white rounded-2xl shadow-xs border border-amber-200 flex items-center justify-between">
+                <span class="flex items-center">
+                  <img src="windy.png" class="w-8 h-8 mr-3 object-contain img-bounce" alt="Windy">
+                  Windy, windy, sway around,
+                </span>
+                <span class="text-xs text-teal-800 bg-teal-100 font-extrabold px-3 py-1 rounded-lg">Sway Sway!</span>
+              </div>
+              <div class="p-3 bg-white rounded-2xl shadow-xs border border-amber-200 flex items-center justify-between">
+                <span class="flex items-center">
+                  <img src="cloudy.png" class="w-8 h-8 mr-3 object-contain img-bounce" alt="Cloudy">
+                  Cloudy, cloudy, turn around.
+                </span>
+                <span class="text-xs text-slate-800 bg-slate-200 font-extrabold px-3 py-1 rounded-lg">Spin Once!</span>
+              </div>
+            </div>
+
+            <div class="mt-5 flex items-center justify-between pt-2">
+              <button @click="toggleSpeakLyrics" 
+                      class="text-xs font-extrabold px-4 py-2.5 rounded-xl transition shadow-xs flex items-center"
+                      :class="isSpeakingLyrics ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : 'bg-amber-300 hover:bg-amber-400 text-amber-950'">
+                <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-5 h-5 mr-1.5 object-contain" alt="speaker">
+                {{ isSpeakingLyrics ? 'Pause' : 'Teacher Voice Read' }}
+              </button>
+              <span class="text-xs text-amber-800 font-bold">Sing & Dance Together! 🌟</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="text-center mb-3">
+              <span class="text-xs font-extrabold uppercase tracking-widest text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+                TPR Movement Actions Demonstration
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="bg-amber-50/70 p-3.5 rounded-2xl border-2 border-amber-200 flex flex-col items-center text-center">
+                <div class="w-full h-44 flex items-center justify-center bg-white rounded-xl p-1 shadow-xs border border-amber-100">
+                  <img src="sunny-action.png" class="max-h-full max-w-full object-contain" alt="Sunny Action">
+                </div>
+                <span class="mt-2 text-xs font-extrabold text-amber-900 bg-amber-100 px-3 py-0.5 rounded-md">☀️ Sunny</span>
+                <p class="text-[11px] font-bold text-amber-800 mt-1">Stretch hands high!</p>
+              </div>
+
+              <div class="bg-blue-50/70 p-3.5 rounded-2xl border-2 border-blue-200 flex flex-col items-center text-center">
+                <div class="w-full h-44 flex items-center justify-center bg-white rounded-xl p-1 shadow-xs border border-blue-100">
+                  <img src="rainy-action.png" class="max-h-full max-w-full object-contain" alt="Rainy Action">
+                </div>
+                <span class="mt-2 text-xs font-extrabold text-blue-900 bg-blue-100 px-3 py-0.5 rounded-md">🌧️ Rainy</span>
+                <p class="text-[11px] font-bold text-blue-800 mt-1">Flutter hands low!</p>
+              </div>
+
+              <div class="bg-teal-50/70 p-3.5 rounded-2xl border-2 border-teal-200 flex flex-col items-center text-center">
+                <div class="w-full h-44 flex items-center justify-center bg-white rounded-xl p-1 shadow-xs border border-teal-100">
+                  <img src="windy-action.png" class="max-h-full max-w-full object-contain" alt="Windy Action">
+                </div>
+                <span class="mt-2 text-xs font-extrabold text-teal-900 bg-teal-100 px-3 py-0.5 rounded-md">💨 Windy</span>
+                <p class="text-[11px] font-bold text-teal-800 mt-1">Sway side to side!</p>
+              </div>
+
+              <div class="bg-slate-100 p-3.5 rounded-2xl border-2 border-slate-300 flex flex-col items-center text-center">
+                <div class="w-full h-44 flex items-center justify-center bg-white rounded-xl p-1 shadow-xs border border-slate-200">
+                  <img src="cloudy-action.png" class="max-h-full max-w-full object-contain" alt="Cloudy Action">
+                </div>
+                <span class="mt-2 text-xs font-extrabold text-slate-800 bg-slate-200 px-3 py-0.5 rounded-md">☁️ Cloudy</span>
+                <p class="text-[11px] font-bold text-slate-600 mt-1">Turn around slowly!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. 3D 天气谜语翻牌互动 -->
+        <div class="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 p-6 md:p-8 rounded-3xl text-slate-900 shadow-lg border-2 border-amber-300 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div class="md:col-span-7 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center space-x-3">
+                <img src="puzzle-icon.png" onerror="this.src='https://api.iconify.design/noto:puzzle-piece.svg'" class="w-12 h-12 object-contain animate-bounce" alt="Riddle Puzzle">
+                <div>
+                  <span class="bg-white/90 px-3 py-0.5 rounded-full text-xs font-extrabold uppercase tracking-wider text-amber-950 shadow-xs">
+                    Formative Assessment • Riddle Time!
+                  </span>
+                  <h4 class="text-2xl md:text-3xl font-extrabold font-fun mt-0.5 text-slate-900 flex items-center">
+                    Weather Riddle Challenge! 
+                    <img src="balloon-icon.png" onerror="this.style.display='none'" class="w-7 h-7 ml-2 inline object-contain" alt="Balloon">
+                  </h4>
+                </div>
+              </div>
+
+              <button @click="nextRiddle" class="self-start sm:self-auto px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-extrabold text-xs shadow-md transition transform hover:scale-105 flex items-center">
+                <i class="fa-solid fa-shuffle mr-2"></i> Next Riddle
+              </button>
+            </div>
+
+            <div style="perspective: 1000px;" class="max-w-md mx-auto sm:mx-0 w-full">
+              <div @click="toggleFlipRiddle" 
+                   class="relative w-full h-56 rounded-3xl cursor-pointer transition-transform duration-500 shadow-md"
+                   :style="{ transformStyle: 'preserve-3d', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }">
+                
+                <div class="absolute inset-0 bg-white rounded-3xl p-6 flex flex-col justify-between items-center text-center border-4 border-amber-200"
+                     style="backface-visibility: hidden;">
+                  <span class="text-xs font-extrabold text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
+                    Riddle {{ currentRiddleIndex + 1 }} of {{ riddles.length }}
+                  </span>
+
+                  <p class="text-lg md:text-xl font-extrabold text-slate-800 font-fun leading-relaxed px-2">
+                    “{{ currentRiddle.question }}”
+                  </p>
+
+                  <div class="flex items-center space-x-3">
+                    <button @click.stop="toggleSpeakRiddle" 
+                            class="px-4 py-2 rounded-xl text-xs font-extrabold shadow-sm transition flex items-center"
+                            :class="isSpeakingRiddle ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : 'bg-amber-100 hover:bg-amber-200 text-amber-900'">
+                      <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-4 h-4 mr-1.5 object-contain" alt="speaker">
+                      {{ isSpeakingRiddle ? 'Pause' : 'Read Riddle' }}
+                    </button>
+                    <span class="text-xs font-bold text-slate-400">👆 Tap card to flip</span>
+                  </div>
+                </div>
+
+                <div class="absolute inset-0 bg-gradient-to-br from-amber-50 to-white rounded-3xl p-6 flex flex-col justify-between items-center text-center border-4 border-amber-400"
+                     style="backface-visibility: hidden; transform: rotateY(180deg);">
+                  <span class="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+                    🎉 Answer Revealed!
+                  </span>
+
+                  <div class="my-auto flex flex-col items-center">
+                    <div class="text-4xl mb-1">{{ currentRiddle.emoji }}</div>
+                    <div class="text-3xl font-extrabold text-slate-900 font-fun">{{ currentRiddle.answer }}!</div>
+                    <p class="text-xs font-bold text-amber-800 mt-1">{{ currentRiddle.actionReminder }}</p>
+                  </div>
+
+                  <div class="flex items-center space-x-3">
+                    <button @click.stop="toggleSpeakAnswer" 
+                            class="px-4 py-2 rounded-xl text-xs font-extrabold shadow-sm transition flex items-center"
+                            :class="isSpeakingAnswer ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : 'bg-amber-400 hover:bg-amber-500 text-amber-950'">
+                      <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-4 h-4 mr-1.5 object-contain" alt="speaker">
+                      {{ isSpeakingAnswer ? 'Pause' : 'Read Answer' }}
+                    </button>
+                    <span class="text-xs font-bold text-slate-400">Tap to flip back</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="hidden md:flex md:col-span-5 justify-center items-center p-2">
+            <img src="wheel-board.png" 
+                 class="w-full max-w-sm h-auto max-h-72 object-contain rounded-2xl shadow-md border-2 border-white bg-white/40 p-1" 
+                 alt="Weather Board">
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. 活动二：Weather Word Hunt ================= -->
+      <section v-if="currentTab === 'act2'" class="space-y-8">
+        <div class="flex items-center justify-between border-b-2 border-blue-200 pb-4">
+          <div>
+            <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Activity 2 • Reading & Sound Hunt</span>
+            <h2 class="text-3xl font-extrabold text-slate-900 font-fun">Weather Word Hunt</h2>
+          </div>
+          <button @click="switchTab('act3')" class="text-sm font-extrabold text-sky-800 hover:text-sky-950 bg-sky-100 hover:bg-sky-200 border border-sky-300 px-4 py-2 rounded-2xl flex items-center transition shadow-xs">
+            Go to Act 3 <i class="fa-solid fa-circle-arrow-right ml-2 text-sky-600"></i>
+          </button>
+        </div>
+
+        <div class="bg-white p-6 md:p-8 rounded-3xl border-2 border-blue-200 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          <div class="md:col-span-4 flex flex-col items-center">
+            <img src="storytelling.png" class="w-full max-w-xs rounded-2xl shadow-sm border-2 border-blue-100 object-cover" alt="Reading Rain Poem">
+            <span class="text-xs font-bold text-slate-500 mt-2">Shared Poetry Reading</span>
+          </div>
+
+          <div class="md:col-span-8 text-center space-y-4">
+            <span class="text-xs font-extrabold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest border border-blue-100">
+              Classic Children's Poetry
+            </span>
+            <h3 class="text-3xl md:text-4xl font-extrabold text-slate-900 font-fun">Rain</h3>
+            <p class="text-xs text-slate-400 font-semibold">Robert Louis Stevenson (1885, <em>A Child's Garden of Verses</em>)</p>
+            
+            <div class="bg-gradient-to-b from-sky-50 via-blue-50/60 to-indigo-50 p-6 md:p-8 rounded-3xl border-2 border-sky-200 text-xl md:text-2xl font-serif leading-loose text-slate-800 shadow-inner relative">
+              <div class="absolute top-3 right-4 opacity-70">
+                <img src="umbrella-icon.png" onerror="this.src='https://api.iconify.design/noto:umbrella.svg'" class="w-10 h-10 object-contain" alt="umbrella">
+              </div>
+              <div class="absolute bottom-3 left-4 opacity-70">
+                <img src="ship-icon.png" onerror="this.src='https://api.iconify.design/noto:passenger-ship.svg'" class="w-10 h-10 object-contain" alt="ship">
+              </div>
+
+              The <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'rain'}" @click="pickWord('rain', 'Rain: Gentle water droplets falling from clouds 💧')">
+                <img src="rainy.png" class="w-7 h-7 inline object-contain" alt="rain">rain
+              </span> is 
+              <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'raining'}" @click="pickWord('raining', 'Raining: It is happening right now!')">raining</span> all around,<br>
+              It falls on <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'field'}" @click="pickWord('field', 'Field: An open green meadow with grass 🌾')">field</span> and 
+              <span class="interactive-word font-bold text-emerald-700" :class="{'bg-amber-200': activeWord === 'tree'}" @click="pickWord('tree', 'Tree: Green leaves, tall branches! Rhymes with SEA! 🌳')">
+                <img src="tree-icon.png" onerror="this.src='https://api.iconify.design/noto:deciduous-tree.svg'" class="w-7 h-7 inline object-contain" alt="tree">tree
+              </span>,<br>
+              It <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'rains'}" @click="pickWord('rains', 'Rains: Third-person singular form of rain')">rains</span> on the 
+              <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'umbrellas'}" @click="pickWord('umbrellas', 'Umbrellas: Bright colorful canopies that keep us dry ☂️')">
+                <img src="umbrella-icon.png" onerror="this.src='https://api.iconify.design/noto:umbrella.svg'" class="w-7 h-7 inline object-contain" alt="umbrella">umbrellas
+              </span> here,<br>
+              And on the <span class="interactive-word" :class="{'bg-amber-200 font-bold': activeWord === 'ships'}" @click="pickWord('ships', 'Ships: Big boats sailing upon blue waters 🚢')">
+                <img src="ship-icon.png" onerror="this.src='https://api.iconify.design/noto:passenger-ship.svg'" class="w-7 h-7 inline object-contain" alt="ship">ships
+              </span> at 
+              <span class="interactive-word font-bold text-blue-700" :class="{'bg-amber-200': activeWord === 'sea'}" @click="pickWord('sea', 'Sea: The great vast blue ocean! Rhymes with TREE! 🌊')">
+                <img src="sea-icon.png" onerror="this.src='https://api.iconify.design/noto:water-wave.svg'" class="w-7 h-7 inline object-contain" alt="sea">sea
+              </span>.
+            </div>
+
+            <div v-if="activeWordExplanation" class="p-3 bg-amber-50 border-2 border-amber-300 text-amber-950 rounded-2xl text-xs md:text-sm font-bold flex items-center justify-between shadow-xs">
+              <span><i class="fa-solid fa-magnifying-glass mr-2 text-amber-600"></i> {{ activeWordExplanation }}</span>
+              <button @click="speakSingleWord(activeWord)" class="text-xs bg-amber-400 hover:bg-amber-500 px-3 py-1.5 rounded-xl font-extrabold text-amber-950 shadow-xs flex items-center">
+                <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-4 h-4 mr-1 object-contain" alt="speaker"> Pronounce
+              </button>
+            </div>
+
+            <button @click="toggleReciteStevensonPoem" 
+                    class="px-6 py-3 rounded-2xl text-xs md:text-sm font-extrabold shadow-md transition transform hover:scale-105 flex items-center mx-auto"
+                    :class="isSpeakingPoem ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : 'bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white'">
+              <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-5 h-5 mr-2 object-contain" alt="speaker">
+              {{ isSpeakingPoem ? 'Pause Poem' : 'Listen to Poem (Gentle Recital)' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 md:p-8 rounded-3xl border-2 border-emerald-200 shadow-sm max-w-2xl mx-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="text-3xl animate-bounce">🔔</span>
+                <h4 class="font-extrabold text-slate-900 font-fun text-2xl">Rhyme Match Challenge!</h4>
+              </div>
+              <span class="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                Sound: /iː/
+              </span>
+            </div>
+            
+            <p class="text-xs md:text-sm text-slate-500 mb-5">
+              Listen to the ending sound of <strong>tree</strong>. Which word is its rhyming friend? Tap to match!
+            </p>
+
+            <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 p-6 rounded-3xl border-2 border-emerald-200">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div class="md:col-span-5 bg-white p-4 rounded-2xl border-2 border-emerald-400 shadow-sm text-center flex flex-col items-center">
+                  <span class="text-xs font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded-md mb-1">Target Word</span>
+                  <img src="tree-icon.png" onerror="this.src='https://api.iconify.design/noto:deciduous-tree.svg'" class="w-16 h-16 object-contain my-1 img-bounce" alt="Tree Icon">
+                  <span class="text-2xl font-extrabold text-emerald-950 font-fun">
+                    tr<span class="text-emerald-600 underline decoration-wavy decoration-emerald-400">ee</span>
+                  </span>
+                  <button @click="speakSingleWord('tree')" class="text-[11px] text-emerald-700 font-extrabold mt-1 hover:underline flex items-center">
+                    <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-3.5 h-3.5 mr-1 object-contain" alt="speaker"> Tap to hear
+                  </button>
+                </div>
+
+                <div class="md:col-span-2 text-center py-2">
+                  <template v-if="matchSuccess">
+                    <img src="party-icon.png" onerror="this.src='https://api.iconify.design/noto:party-popper.svg'" class="w-10 h-10 mx-auto object-contain animate-bounce" alt="Party">
+                    <span class="text-[11px] font-black text-emerald-700 block font-fun uppercase">Matched!</span>
+                  </template>
+                  <template v-else>
+                    <span class="text-2xl text-slate-400">➔</span>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Match with</span>
+                  </template>
+                </div>
+
+                <div class="md:col-span-5 space-y-2">
+                  <button v-for="option in rhymeOptions" :key="option.word" 
+                          @click="checkRhymeMatch(option)"
+                          class="w-full p-2.5 rounded-xl border-2 font-bold text-xs flex items-center justify-between transition transform active:scale-95 shadow-xs"
+                          :class="getOptionClass(option)">
+                    <span class="flex items-center text-sm">
+                      <img :src="option.iconImg" class="w-8 h-8 mr-2.5 object-contain" :alt="option.word">
+                      {{ option.word }}
+                    </span>
+                    <span v-if="option.status === 'correct'" class="text-xs font-black text-emerald-700">✓ Match!</span>
+                    <span v-else-if="option.status === 'wrong'" class="text-[10px] font-bold text-rose-500">Try again!</span>
+                    <span v-else class="text-[10px] text-slate-400">Tap to match</span>
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="matchSuccess" class="mt-4 p-3 bg-emerald-100 border-2 border-emerald-300 text-emerald-950 rounded-2xl text-xs font-bold text-center animate-pulse-soft flex items-center justify-center space-x-2">
+                <img src="party-icon.png" onerror="this.src='https://api.iconify.design/noto:party-popper.svg'" class="w-6 h-6 object-contain" alt="Party">
+                <span>🌟 <strong>Super Sound Detectives!</strong> "Tree" and "Sea" both end with the long <strong>/iː/</strong> sound!</span>
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-200 gap-2">
+              <span class="text-xs font-extrabold text-slate-600 uppercase tracking-wide">More rhyming friends:</span>
+              <div class="flex space-x-2">
+                <button @click="speakSingleWord('bee')" class="text-xs bg-white hover:bg-amber-100 px-3 py-1.5 rounded-xl border border-slate-200 font-extrabold text-slate-700 shadow-xs transition transform hover:scale-105 flex items-center">
+                  <img src="bee-icon.png" onerror="this.src='https://api.iconify.design/noto:honeybee.svg'" class="w-5 h-5 mr-1.5 object-contain" alt="Bee">
+                  b<span class="text-emerald-600 font-black">ee</span>
+                </button>
+                <button @click="speakSingleWord('see')" class="text-xs bg-white hover:bg-sky-100 px-3 py-1.5 rounded-xl border border-slate-200 font-extrabold text-slate-700 shadow-xs transition transform hover:scale-105 flex items-center">
+                  <img src="eyes-icon.png" onerror="this.src='https://api.iconify.design/noto:eyes.svg'" class="w-5 h-5 mr-1.5 object-contain" alt="Eyes">
+                  s<span class="text-blue-600 font-black">ee</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button @click="toggleSpeakRhymeExplanation" 
+                  class="mt-5 w-full py-3 rounded-2xl text-xs md:text-sm font-extrabold transition shadow-xs flex items-center justify-center"
+                  :class="isSpeakingRhyme ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950'">
+            <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-5 h-5 mr-2 object-contain" alt="speaker">
+            {{ isSpeakingRhyme ? 'Pause Explanation' : 'Hear Why They Rhyme' }}
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 3. 活动三：Poetry Studio ================= -->
+      <section v-if="currentTab === 'act3'" class="space-y-8">
+        <div class="flex items-center justify-between border-b-2 border-emerald-200 pb-4">
+          <div>
+            <span class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Activity 3 • Creative Production</span>
+            <h2 class="text-3xl font-extrabold text-slate-900 font-fun">Draw It, Write It! Studio</h2>
+          </div>
+          <span class="text-xs font-bold bg-emerald-100 text-emerald-900 px-3 py-1.5 rounded-xl">Writing, Drawing & Speaking</span>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border-2 border-emerald-200 shadow-sm">
+          <h4 class="font-extrabold text-slate-900 font-fun text-xl mb-4 flex items-center">
+            <img src="bag-icon.png" onerror="this.src='https://api.iconify.design/noto:briefcase.svg'" class="w-8 h-8 mr-2.5 object-contain" alt="Tool bag">
+            Interactive Word Bank (Tap any word to fill your poem!)
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-bold">
+            <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 flex flex-col justify-between">
+              <div>
+                <span class="text-amber-950 text-sm font-black uppercase tracking-wide flex items-center mb-3">
+                  <img src="sunny.png" class="w-7 h-7 mr-2 object-contain" alt="sun"> Weather Words
+                </span>
+                <div class="flex flex-wrap gap-2">
+                  <button v-for="w in ['sunny', 'rainy', 'windy', 'cloudy']" :key="w" @click="poemForm.line1 = w" class="bg-white px-3 py-1 rounded-lg border border-amber-200 shadow-xs hover:bg-amber-200 transition">{{ w }}</button>
+                  <button @click="poemForm.line1 = 'stormy'" class="bg-white px-2.5 py-1 rounded-lg border border-amber-200 shadow-xs hover:bg-amber-200 transition flex items-center">
+                    <img src="stormy.png" onerror="this.src='https://api.iconify.design/noto:cloud-with-lightning-and-rain.svg'" class="w-5 h-5 mr-1 object-contain" alt="stormy"> stormy
+                  </button>
+                  <button @click="poemForm.line1 = 'snowy'" class="bg-white px-2.5 py-1 rounded-lg border border-amber-200 shadow-xs hover:bg-amber-200 transition flex items-center">
+                    <img src="snowy.png" onerror="this.src='https://api.iconify.design/noto:cloud-with-snow.svg'" class="w-5 h-5 mr-1 object-contain" alt="snowy"> snowy
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-2xl border border-blue-200 flex flex-col justify-between">
+              <div>
+                <span class="text-blue-950 text-sm font-black uppercase tracking-wide flex items-center mb-3">
+                  <img src="palette-icon.png" onerror="this.src='https://api.iconify.design/noto:artist-palette.svg'" class="w-7 h-7 mr-2 object-contain" alt="palette"> Descriptive Words
+                </span>
+                <div class="flex flex-wrap gap-2">
+                  <button v-for="w in ['bright', 'grey', 'warm', 'cold', 'strong', 'soft']" :key="w" @click="poemForm.line2 = w" class="bg-white px-3 py-1 rounded-lg border border-blue-200 shadow-xs hover:bg-blue-200 transition">{{ w }}</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200 flex flex-col justify-between">
+              <div>
+                <span class="text-purple-950 text-sm font-black uppercase tracking-wide flex items-center mb-3">
+                  <img src="heart-icon.png" onerror="this.src='https://api.iconify.design/noto:red-heart.svg'" class="w-7 h-7 mr-2 object-contain animate-pulse-soft" alt="heart"> Feeling Words
+                </span>
+                <div class="flex flex-wrap gap-2">
+                  <button v-for="w in ['cheerful', 'happy', 'calm', 'excited', 'peaceful']" :key="w" @click="poemForm.line4 = w" class="bg-white px-3 py-1 rounded-lg border border-purple-200 shadow-xs hover:bg-purple-200 transition">{{ w }}</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div class="lg:col-span-5 bg-white p-6 rounded-3xl border-2 border-slate-200 shadow-sm space-y-4">
+            <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 flex flex-col items-center text-center">
+              <img src="kids-writing.png" class="w-full max-h-40 object-contain rounded-xl border border-white shadow-xs mb-2" alt="Kids Writing Together">
+              <h4 class="font-extrabold text-slate-900 font-fun text-lg">Write Your 4-Line Poem</h4>
+              <span class="text-xs text-emerald-800 font-bold">Team up with a friend to pick descriptive words!</span>
+            </div>
+
+            <div>
+              <label class="text-xs font-extrabold text-slate-500 uppercase">Line 1: Today the weather is</label>
+              <input v-model="poemForm.line1" placeholder="e.g. sunny / rainy / stormy" class="w-full mt-1 px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-emerald-500 outline-none font-bold">
+            </div>
+            <div>
+              <label class="text-xs font-extrabold text-slate-500 uppercase">Line 2: The [descriptive] sky is above me</label>
+              <input v-model="poemForm.line2" placeholder="e.g. bright / warm / grey" class="w-full mt-1 px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-emerald-500 outline-none font-bold">
+            </div>
+            <div>
+              <label class="text-xs font-extrabold text-slate-500 uppercase">Line 3: I can see</label>
+              <input v-model="poemForm.line3" placeholder="e.g. birds singing in the green tree" class="w-full mt-1 px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-emerald-500 outline-none font-bold">
+            </div>
+            <div>
+              <label class="text-xs font-extrabold text-slate-500 uppercase">Line 4: I feel [feeling word] today</label>
+              <input v-model="poemForm.line4" placeholder="e.g. cheerful / calm / peaceful" class="w-full mt-1 px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-emerald-500 outline-none font-bold">
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 space-y-4">
+            <div id="poemCertificateCard" class="bg-gradient-to-br from-amber-50 via-emerald-50 to-sky-100 p-6 md:p-8 rounded-3xl border-3 border-dashed border-emerald-400 shadow-md relative">
+              <div class="absolute -top-3 -right-3 text-4xl">🌟</div>
+              
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-emerald-800 bg-emerald-200/70 px-3 py-1 rounded-full">
+                  Little Poet's Illustrated Certificate
+                </span>
+                <span class="text-xs font-bold text-slate-500 flex items-center">
+                  <img src="palette-icon.png" onerror="this.src='https://api.iconify.design/noto:artist-palette.svg'" class="w-5 h-5 mr-1 object-contain" alt="palette"> Write & Draw!
+                </span>
+              </div>
+
+              <div class="my-4 text-lg md:text-xl font-serif text-slate-800 space-y-2 bg-white/70 p-4 rounded-2xl border border-emerald-200/80">
+                <p>Today the weather is <span class="font-extrabold text-emerald-800 underline decoration-amber-400">{{ poemForm.line1 || '______' }}</span>.</p>
+                <p>The <span class="font-extrabold text-emerald-800 underline decoration-amber-400">{{ poemForm.line2 || '______' }}</span> sky is above me.</p>
+                <p>I can see <span class="font-extrabold text-emerald-800 underline decoration-amber-400">{{ poemForm.line3 || '______' }}</span>.</p>
+                <p>I feel <span class="font-extrabold text-emerald-800 underline decoration-amber-400">{{ poemForm.line4 || '______' }}</span> today.</p>
+              </div>
+
+              <div class="bg-white p-3.5 rounded-2xl border-2 border-emerald-300 shadow-inner">
+                <div class="flex flex-wrap items-center justify-between mb-2.5 gap-2 text-xs">
+                  <span class="font-extrabold text-emerald-950 flex items-center">
+                    <img src="palette-icon.png" onerror="this.src='https://api.iconify.design/noto:artist-palette.svg'" class="w-5 h-5 mr-1.5 object-contain" alt="palette">
+                    <strong>Draw your weather illustration:</strong>
+                  </span>
+
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <div class="flex items-center space-x-1 pr-1 border-r border-slate-200">
+                      <button v-for="c in brushColors" :key="c.name" 
+                              @click="selectBrush(c.val)" 
+                              :title="c.name"
+                              class="w-5 h-5 rounded-full border-2 transition transform hover:scale-110"
+                              :class="(!isEraser && currentColor === c.val) ? 'border-slate-800 ring-2 ring-emerald-400 scale-110' : 'border-white'"
+                              :style="{ backgroundColor: c.val }">
+                      </button>
+                    </div>
+
+                    <div class="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200">
+                      <button @click="setBrushSize(2)" class="px-2 py-0.5 rounded text-[10px] font-extrabold transition" :class="currentSize === 2 ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-500'">Fine</button>
+                      <button @click="setBrushSize(5)" class="px-2 py-0.5 rounded text-[10px] font-extrabold transition" :class="currentSize === 5 ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-500'">Normal</button>
+                      <button @click="setBrushSize(10)" class="px-2 py-0.5 rounded text-[10px] font-extrabold transition" :class="currentSize === 10 ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-500'">Bold</button>
+                    </div>
+
+                    <button @click="selectEraser" class="px-2.5 py-1 rounded-lg font-extrabold transition text-[11px] border flex items-center" :class="isEraser ? 'bg-amber-300 text-amber-950 border-amber-400 shadow-xs' : 'bg-slate-100 text-slate-700'">
+                      <i class="fa-solid fa-eraser mr-1"></i> Eraser
+                    </button>
+                    <button @click="clearCanvas" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-lg transition text-[11px] border">
+                      <i class="fa-solid fa-trash-can mr-1"></i> Clear
+                    </button>
+                    <button @click="openFullscreenDraw" class="px-2.5 py-1 bg-sky-100 hover:bg-sky-200 text-sky-900 font-extrabold rounded-lg transition text-[11px] border border-sky-300 flex items-center shadow-xs">
+                      <i class="fa-solid fa-expand mr-1 text-sky-700"></i> Fullscreen
+                    </button>
+                  </div>
+                </div>
+
+                <div class="relative w-full h-44 bg-sky-50/40 rounded-xl border border-dashed border-emerald-200 overflow-hidden">
+                  <canvas ref="canvasRef" 
+                          class="w-full h-full draw-canvas"
+                          :class="isEraser ? 'cursor-eraser' : 'cursor-pen'"
+                          @mousedown="startDrawing" 
+                          @mousemove="draw" 
+                          @mouseup="stopDrawing" 
+                          @mouseleave="stopDrawing"
+                          @touchstart.passive="startTouchDrawing" 
+                          @touchmove.passive="touchDraw" 
+                          @touchend="stopDrawing">
+                  </canvas>
+                  <div v-if="!hasDrawn" class="absolute inset-0 flex items-center justify-center pointer-events-none text-xs text-slate-400 font-bold">
+                    ✏️ Draw your sun, clouds, or raindrops here!
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 操作按钮栏 -->
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <button @click="toggleSpeakCustomPoem" 
+                      class="px-6 py-3 rounded-2xl text-xs font-extrabold shadow-md transition transform hover:scale-105 flex items-center"
+                      :class="isSpeakingCustomPoem ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse' : 'bg-emerald-600 hover:bg-emerald-700 text-white'">
+                <img src="speaker-icon.png" onerror="this.src='https://api.iconify.design/noto:speaker-high-volume.svg'" class="w-5 h-5 mr-1.5 object-contain" alt="speaker">
+                {{ isSpeakingCustomPoem ? 'Pause' : 'Recite My Poem Aloud!' }}
+              </button>
+
+              <button @click="saveCertificateAsImage" 
+                      class="px-6 py-3 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-slate-900 rounded-2xl text-xs font-extrabold shadow-md transition transform hover:scale-105 flex items-center cursor-pointer">
+                <i class="fa-solid fa-camera mr-1.5 text-amber-950"></i> Save My Poem & Drawing (Download PNG)
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= 全屏涂鸦画室弹窗 (修复 Save & Exit 响应问题) ================= -->
+    <div v-if="showFullscreenCanvas" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col p-4 md:p-8">
+      
+      <div class="bg-white rounded-2xl p-4 shadow-lg flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex items-center space-x-2">
+          <img src="palette-icon.png" onerror="this.src='https://api.iconify.design/noto:artist-palette.svg'" class="w-8 h-8 object-contain" alt="Palette">
+          <div>
+            <h3 class="font-extrabold text-slate-900 font-fun text-lg">Fullscreen Drawing Studio</h3>
+            <span class="text-xs text-slate-500 font-bold">Draw big weather illustrations with lots of space!</span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center space-x-1.5 pr-2 border-r border-slate-200">
+            <button v-for="c in brushColors" :key="c.name" 
+                    @click="selectBrush(c.val)" 
+                    :title="c.name"
+                    class="w-7 h-7 rounded-full border-2 transition transform hover:scale-110"
+                    :class="(!isEraser && currentColor === c.val) ? 'border-slate-800 ring-2 ring-emerald-400 scale-110' : 'border-white'"
+                    :style="{ backgroundColor: c.val }">
+            </button>
+          </div>
+
+          <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+            <button @click="setBrushSize(3)" class="px-3 py-1 rounded-lg text-xs font-extrabold transition" :class="currentSize === 3 ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-500'">Fine</button>
+            <button @click="setBrushSize(7)" class="px-3 py-1 rounded-lg text-xs font-extrabold transition" :class="currentSize === 7 ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-500'">Normal</button>
+            <button @click="setBrushSize(14)" class="px-3 py-1 rounded-lg text-xs font-extrabold transition" :class="currentSize === 14 ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-500'">Bold</button>
+          </div>
+
+          <button @click="selectEraser" class="px-3 py-1.5 rounded-xl font-extrabold transition text-xs border flex items-center" :class="isEraser ? 'bg-amber-300 text-amber-950 border-amber-400 shadow-xs' : 'bg-slate-100 text-slate-700'">
+            <i class="fa-solid fa-eraser mr-1.5"></i> Eraser
+          </button>
+
+          <button @click="clearFullscreenCanvas" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold rounded-xl transition text-xs border">
+            <i class="fa-solid fa-trash-can mr-1.5"></i> Clear
+          </button>
+
+          <!-- 退出按钮 -->
+          <button @click="closeFullscreenDraw" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl transition text-xs shadow-md flex items-center cursor-pointer">
+            <i class="fa-solid fa-check mr-1.5"></i> Save & Exit Fullscreen
+          </button>
+        </div>
+      </div>
+
+      <div class="flex-grow bg-white rounded-3xl shadow-2xl relative overflow-hidden border-4 border-emerald-400">
+        <canvas ref="fsCanvasRef" 
+                class="w-full h-full draw-canvas"
+                :class="isEraser ? 'cursor-eraser' : 'cursor-pen'"
+                @mousedown="startFsDrawing" 
+                @mousemove="fsDraw" 
+                @mouseup="stopFsDrawing" 
+                @mouseleave="stopFsDrawing"
+                @touchstart.passive="startFsTouchDrawing" 
+                @touchmove.passive="fsTouchDraw" 
+                @touchend="stopFsDrawing">
+        </canvas>
+      </div>
+
+    </div>
+
+    <!-- ================= 教师专区抽屉 (Teacher Zone Drawer - 包含声音设置与使用手册直达按钮) ================= -->
+    <div v-if="showTeacherDrawer" class="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end">
+      <div class="w-full max-w-lg bg-white h-full shadow-2xl p-6 md:p-8 overflow-y-auto space-y-6">
+        
+        <div class="flex items-center justify-between border-b pb-4">
+          <div>
+            <h3 class="text-2xl font-extrabold text-slate-900 font-fun">Teacher Zone</h3>
+            <p class="text-xs text-slate-500 font-semibold mt-0.5">Speech settings & official documentation</p>
+          </div>
+          <button @click="showTeacherDrawer = false" class="text-slate-400 hover:text-slate-700 p-2 text-xl">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- 1. 老师声音设置卡片 -->
+        <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200 shadow-2xs space-y-3">
+          <h4 class="font-bold text-xs text-amber-900 uppercase tracking-wide flex items-center">
+            <i class="fa-solid fa-sliders mr-2 text-amber-700"></i> SELECT TEACHER VOICE (GENTLE FEMALE VOICE)
+          </h4>
+          <select v-model="selectedVoiceIndex" class="w-full text-xs p-3 border border-amber-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-amber-400 font-bold text-slate-700">
+            <option v-for="(v, i) in femaleVoices" :key="i" :value="i">
+              {{ v.name }} ({{ v.lang }})
+            </option>
+          </select>
+          <p class="text-xs text-amber-800/90 leading-relaxed font-semibold">
+            Default voice tuned to gentle Malaysian / Singapore English with soft teacher cadence (Rate: 0.85, Pitch: 1.15).
+          </p>
+        </div>
+
+        <!-- 2. 查看使用手册按钮 (View User Manual Button) -->
+        <div class="pt-2">
+          <a href="Manual_Pengguna.html" target="_blank" 
+             class="w-full py-3.5 px-4 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white rounded-2xl text-xs font-extrabold shadow-md flex items-center justify-center space-x-2 transition transform hover:scale-[1.02] active:scale-95 cursor-pointer decoration-0">
+            <img src="book-icon.png" onerror="this.style.display='none'" class="w-5 h-5 object-contain mr-1" alt="Manual">
+            <span> View User Manual</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[11px] ml-1"></i>
+          </a>
+          <p class="text-[11px] text-slate-400 text-center mt-2">
+                     </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 底部声明 -->
+    <footer class="bg-white/80 border-t border-sky-100 py-4 text-center text-xs text-slate-400">
+      <p>Weather in Rhythm: A Songs and Poems Resource Kit for Year 4 ESL • Academic Integrity Compliant</p>
+    </footer>
+
+  </div>
+
+  <script>
+    const { createApp, ref, computed, nextTick } = Vue;
+
+    createApp({
+      setup() {
+        const currentTab = ref('home');
+        const showTeacherDrawer = ref(false);
+        const activeWord = ref('');
+        const activeWordExplanation = ref('');
+        const isPlayingMusic = ref(false);
+        const selectedVoiceIndex = ref(0);
+
+        // 背景音乐控制器状态
+        const isBgMusicPlaying = ref(false);
+        const bgMusicVolume = ref(0.3);
+        let bgAudioInstance = null;
+        let bgSynthInterval = null;
+        let bgAudioCtx = null;
+        let bgMasterGain = null;
+
+        const isSpeakingLyrics = ref(false);
+        const isSpeakingRiddle = ref(false);
+        const isSpeakingAnswer = ref(false);
+        const isSpeakingPoem = ref(false);
+        const isSpeakingCustomPoem = ref(false);
+        const isSpeakingRhyme = ref(false);
+
+        let bgAudio = null;
+        let audioCtx = null;
+        let synthTimeouts = [];
+
+        const matchSuccess = ref(false);
+        const rhymeOptions = ref([
+          { word: 'ship', iconImg: 'ship-icon.png', status: 'idle' },
+          { word: 'sea', iconImg: 'sea-icon.png', status: 'idle' },
+          { word: 'rain', iconImg: 'rainy.png', status: 'idle' }
+        ]);
+
+        const canvasRef = ref(null);
+        const fsCanvasRef = ref(null);
+        let ctx = null;
+        let fsCtx = null;
+        const isPainting = ref(false);
+        const hasDrawn = ref(false);
+        const isEraser = ref(false);
+        const currentSize = ref(5);
+        const currentColor = ref('#F59E0B');
+        const showFullscreenCanvas = ref(false);
+
+        const brushColors = [
+          { name: 'Sun Yellow', val: '#F59E0B' },
+          { name: 'Rain Blue', val: '#3B82F6' },
+          { name: 'Grass Green', val: '#10B981' },
+          { name: 'Warm Red', val: '#EF4444' },
+          { name: 'Pencil Black', val: '#1E293B' }
+        ];
+
+        const weatherCards = ref([
+          {
+            name: 'Sunny',
+            brief: 'Touch the sky high!',
+            img: 'sunny.png',
+            sentence: 'It is a warm, sunny day! The sun is smiling bright.',
+            actionDetail: 'Stretch both hands high towards the ceiling!',
+            isFlipped: false,
+            isSpeakingFront: false,
+            isSpeakingBack: false,
+            frontClass: 'bg-gradient-to-b from-amber-50 to-white border-amber-300 hover:border-amber-400',
+            backBorderClass: 'border-amber-400',
+            titleColor: 'text-amber-950',
+            subtitleColor: 'text-amber-700/80',
+            tagClass: 'bg-amber-100 text-amber-900',
+            btnClass: 'bg-amber-400 hover:bg-amber-500 text-amber-950'
+          },
+          {
+            name: 'Rainy',
+            brief: 'Hands flutter low!',
+            img: 'rainy.png',
+            sentence: 'Pitter-patter! Cool raindrops are falling down.',
+            actionDetail: 'Move both hands down low and flutter fingers like rain.',
+            isFlipped: false,
+            isSpeakingFront: false,
+            isSpeakingBack: false,
+            frontClass: 'bg-gradient-to-b from-blue-50 to-white border-blue-300 hover:border-blue-400',
+            backBorderClass: 'border-blue-400',
+            titleColor: 'text-blue-950',
+            subtitleColor: 'text-blue-700/80',
+            tagClass: 'bg-blue-100 text-blue-900',
+            btnClass: 'bg-blue-400 hover:bg-blue-500 text-white'
+          },
+          {
+            name: 'Windy',
+            brief: 'Sway side to side!',
+            img: 'windy.png',
+            sentence: 'Whoosh! The fresh cool breeze is blowing the leaves.',
+            actionDetail: 'Gently sway your body and arms from side to side.',
+            isFlipped: false,
+            isSpeakingFront: false,
+            isSpeakingBack: false,
+            frontClass: 'bg-gradient-to-b from-teal-50 to-white border-teal-300 hover:border-teal-400',
+            backBorderClass: 'border-teal-400',
+            titleColor: 'text-teal-950',
+            subtitleColor: 'text-teal-700/80',
+            tagClass: 'bg-teal-100 text-teal-900',
+            btnClass: 'bg-teal-400 hover:bg-teal-500 text-teal-950'
+          },
+          {
+            name: 'Cloudy',
+            brief: 'Turn around slowly!',
+            img: 'cloudy.png',
+            sentence: 'Fluffy white and grey clouds are drifting across the sky.',
+            actionDetail: 'Round your arms and turn around slowly once in place.',
+            isFlipped: false,
+            isSpeakingFront: false,
+            isSpeakingBack: false,
+            frontClass: 'bg-gradient-to-b from-slate-100 to-white border-slate-300 hover:border-slate-400',
+            backBorderClass: 'border-slate-400',
+            titleColor: 'text-slate-800',
+            subtitleColor: 'text-slate-500',
+            tagClass: 'bg-slate-200 text-slate-800',
+            btnClass: 'bg-slate-300 hover:bg-slate-400 text-slate-800'
+          }
+        ]);
+
+        const riddles = [
+          {
+            question: "I fall from grey clouds, pitter-patter. I make puddles on the ground. What weather am I?",
+            answer: "Rainy",
+            emoji: "🌧️",
+            actionReminder: "Now do the action: Flutter hands down low!"
+          },
+          {
+            question: "I am warm, golden and bright in the sky. I make flowers grow. What weather am I?",
+            answer: "Sunny",
+            emoji: "☀️",
+            actionReminder: "Now do the action: Reach your hands up high to the sky!"
+          },
+          {
+            question: "You cannot see me, but you can feel me blow and sway the trees. What weather am I?",
+            answer: "Windy",
+            emoji: "💨",
+            actionReminder: "Now do the action: Sway your body gently from side to side!"
+          },
+          {
+            question: "I am soft and fluffy like cotton balls, covering the blue sky. What weather am I?",
+            answer: "Cloudy",
+            emoji: "☁️",
+            actionReminder: "Now do the action: Turn around slowly like a floating cloud!"
+          }
+        ];
+
+        const currentRiddleIndex = ref(0);
+        const isFlipped = ref(false);
+        const currentRiddle = computed(() => riddles[currentRiddleIndex.value]);
+
+        const poemForm = ref({
+          line1: 'sunny',
+          line2: 'bright',
+          line3: 'birds singing in the green tree',
+          line4: 'cheerful'
+        });
+
+        // 声音管理系统
+        const allVoices = ref([]);
+        const femaleVoices = ref([]);
+
+        const updateVoices = () => {
+          if (!('speechSynthesis' in window)) return;
+          const voices = window.speechSynthesis.getVoices();
+          if (!voices || voices.length === 0) return;
+          allVoices.value = voices;
+
+          const filtered = voices.filter(v => {
+            const name = v.name.toLowerCase();
+            const lang = v.lang.toLowerCase();
+            return (
+              (lang.includes('en-my') || lang.includes('en-sg') || lang.startsWith('en')) &&
+              (name.includes('yasmin') || name.includes('natural') || name.includes('female') || 
+               name.includes('samantha') || name.includes('karen') || name.includes('sonia') || 
+               name.includes('jenny') || name.includes('aria') || name.includes('zira') || 
+               lang.includes('en-my'))
+            );
+          });
+
+          femaleVoices.value = filtered.length > 0 ? filtered : voices.filter(v => v.lang.startsWith('en'));
+        };
+
+        if ('speechSynthesis' in window) {
+          updateVoices();
+          window.speechSynthesis.onvoiceschanged = updateVoices;
+          setTimeout(updateVoices, 300);
+          setTimeout(updateVoices, 1000);
+        }
+
+        // ================= 背景音乐系统 =================
+        const initBgAudioContext = () => {
+          if (!bgAudioCtx) {
+            bgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            bgMasterGain = bgAudioCtx.createGain();
+            bgMasterGain.gain.setValueAtTime(bgMusicVolume.value, bgAudioCtx.currentTime);
+            bgMasterGain.connect(bgAudioCtx.destination);
+          }
+          if (bgAudioCtx.state === 'suspended') {
+            bgAudioCtx.resume();
+          }
+        };
+
+        const updateBgMusicVolume = () => {
+          if (bgMasterGain && bgAudioCtx) {
+            bgMasterGain.gain.setValueAtTime(parseFloat(bgMusicVolume.value), bgAudioCtx.currentTime);
+          }
+          if (bgAudioInstance) {
+            bgAudioInstance.volume = parseFloat(bgMusicVolume.value);
+          }
+        };
+
+        const playSoftArpeggio = () => {
+          if (!isBgMusicPlaying.value || !bgAudioCtx || !bgMasterGain) return;
+          const notes = [
+            261.63, 329.63, 392.00, 523.25,
+            220.00, 261.63, 329.63, 440.00,
+            174.61, 220.00, 261.63, 349.23,
+            196.00, 246.94, 293.66, 392.00
+          ];
+
+          let time = bgAudioCtx.currentTime;
+          notes.forEach((freq, idx) => {
+            const osc = bgAudioCtx.createOscillator();
+            const noteGain = bgAudioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, time + idx * 0.28);
+            noteGain.gain.setValueAtTime(0.08, time + idx * 0.28);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, time + idx * 0.28 + 0.6);
+            osc.connect(noteGain);
+            noteGain.connect(bgMasterGain);
+            osc.start(time + idx * 0.28);
+            osc.stop(time + idx * 0.28 + 0.6);
+          });
+        };
+
+        const toggleBgMusic = () => {
+          if (isBgMusicPlaying.value) {
+            isBgMusicPlaying.value = false;
+            if (bgAudioInstance) bgAudioInstance.pause();
+            if (bgSynthInterval) {
+              clearInterval(bgSynthInterval);
+              bgSynthInterval = null;
+            }
+            return;
+          }
+
+          initBgAudioContext();
+          isBgMusicPlaying.value = true;
+
+          if (!bgAudioInstance) {
+            bgAudioInstance = new Audio('bgm.mp3');
+            bgAudioInstance.loop = true;
+            bgAudioInstance.volume = parseFloat(bgMusicVolume.value);
+          }
+
+          const playPromise = bgAudioInstance.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              playSoftArpeggio();
+              bgSynthInterval = setInterval(playSoftArpeggio, 4600);
+            });
+          }
+        };
+
+        const stopAllAudio = () => {
+          if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+          }
+          isSpeakingLyrics.value = false;
+          isSpeakingRiddle.value = false;
+          isSpeakingAnswer.value = false;
+          isSpeakingPoem.value = false;
+          isSpeakingCustomPoem.value = false;
+          isSpeakingRhyme.value = false;
+          weatherCards.value.forEach(c => {
+            c.isSpeakingFront = false;
+            c.isSpeakingBack = false;
+          });
+        };
+
+        const switchTab = (tab) => {
+          currentTab.value = tab;
+          stopAllAudio();
+          if (tab === 'act3') {
+            nextTick(() => {
+              initCanvas();
+            });
+          }
+        };
+
+        const checkRhymeMatch = (opt) => {
+          speakSingleWord(opt.word);
+          if (opt.word === 'sea') {
+            opt.status = 'correct';
+            matchSuccess.value = true;
+            setTimeout(() => {
+              speak("Correct! Tree and sea are rhyming friends!");
+            }, 600);
+          } else {
+            opt.status = 'wrong';
+            matchSuccess.value = false;
+            setTimeout(() => {
+              opt.status = 'idle';
+            }, 1200);
+          }
+        };
+
+        const getOptionClass = (opt) => {
+          if (opt.status === 'correct') {
+            return 'bg-emerald-100 border-emerald-500 text-emerald-950 scale-102';
+          } else if (opt.status === 'wrong') {
+            return 'bg-rose-50 border-rose-400 text-rose-700 animate-pulse';
+          }
+          return 'bg-white hover:bg-sky-50 border-slate-200 text-slate-700';
+        };
+
+        const initCanvas = () => {
+          if (!canvasRef.value) return;
+          const canvas = canvasRef.value;
+          const rect = canvas.getBoundingClientRect();
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+          ctx = canvas.getContext('2d');
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+        };
+
+        const selectBrush = (color) => {
+          isEraser.value = false;
+          currentColor.value = color;
+        };
+
+        const selectEraser = () => {
+          isEraser.value = true;
+        };
+
+        const setBrushSize = (size) => {
+          currentSize.value = size;
+        };
+
+        const startDrawing = (e) => {
+          if (!ctx) initCanvas();
+          isPainting.value = true;
+          hasDrawn.value = true;
+          ctx.beginPath();
+          if (isEraser.value) {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = currentSize.value * 4;
+          } else {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = currentColor.value;
+            ctx.lineWidth = currentSize.value;
+          }
+          ctx.moveTo(e.offsetX, e.offsetY);
+        };
+
+        const draw = (e) => {
+          if (!isPainting.value || !ctx) return;
+          ctx.lineTo(e.offsetX, e.offsetY);
+          ctx.stroke();
+        };
+
+        const startTouchDrawing = (e) => {
+          if (!ctx) initCanvas();
+          const rect = canvasRef.value.getBoundingClientRect();
+          const touch = e.touches[0];
+          isPainting.value = true;
+          hasDrawn.value = true;
+          ctx.beginPath();
+          if (isEraser.value) {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = currentSize.value * 4;
+          } else {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = currentColor.value;
+            ctx.lineWidth = currentSize.value;
+          }
+          ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        };
+
+        const touchDraw = (e) => {
+          if (!isPainting.value || !ctx) return;
+          const rect = canvasRef.value.getBoundingClientRect();
+          const touch = e.touches[0];
+          ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+          ctx.stroke();
+        };
+
+        const stopDrawing = () => {
+          isPainting.value = false;
+        };
+
+        const clearCanvas = () => {
+          if (!ctx || !canvasRef.value) return;
+          ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+          hasDrawn.value = false;
+        };
+
+        const openFullscreenDraw = () => {
+          showFullscreenCanvas.value = true;
+          nextTick(() => {
+            if (!fsCanvasRef.value) return;
+            const canvas = fsCanvasRef.value;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width || window.innerWidth;
+            canvas.height = rect.height || (window.innerHeight - 100);
+            fsCtx = canvas.getContext('2d');
+            fsCtx.lineCap = 'round';
+            fsCtx.lineJoin = 'round';
+
+            if (canvasRef.value && hasDrawn.value) {
+              fsCtx.drawImage(canvasRef.value, 0, 0, canvas.width, canvas.height);
+            }
+          });
+        };
+
+        const closeFullscreenDraw = () => {
+          try {
+            if (fsCanvasRef.value && canvasRef.value) {
+              if (!ctx) {
+                ctx = canvasRef.value.getContext('2d');
+              }
+              if (ctx) {
+                ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+                ctx.drawImage(fsCanvasRef.value, 0, 0, canvas.width, canvas.height);
+                hasDrawn.value = true;
+              }
+            }
+          } catch (e) {
+            console.error("Canvas sync error:", e);
+          } finally {
+            showFullscreenCanvas.value = false;
+          }
+        };
+
+        const clearFullscreenCanvas = () => {
+          if (!fsCtx || !fsCanvasRef.value) return;
+          fsCtx.clearRect(0, 0, fsCanvasRef.value.width, fsCanvasRef.value.height);
+          hasDrawn.value = false;
+        };
+
+        const startFsDrawing = (e) => {
+          if (!fsCtx) return;
+          isPainting.value = true;
+          hasDrawn.value = true;
+          fsCtx.beginPath();
+          if (isEraser.value) {
+            fsCtx.globalCompositeOperation = 'destination-out';
+            fsCtx.lineWidth = currentSize.value * 4;
+          } else {
+            fsCtx.globalCompositeOperation = 'source-over';
+            fsCtx.strokeStyle = currentColor.value;
+            fsCtx.lineWidth = currentSize.value;
+          }
+          fsCtx.moveTo(e.offsetX, e.offsetY);
+        };
+
+        const fsDraw = (e) => {
+          if (!isPainting.value || !fsCtx) return;
+          fsCtx.lineTo(e.offsetX, e.offsetY);
+          fsCtx.stroke();
+        };
+
+        const startFsTouchDrawing = (e) => {
+          if (!fsCtx) return;
+          const rect = fsCanvasRef.value.getBoundingClientRect();
+          const touch = e.touches[0];
+          isPainting.value = true;
+          hasDrawn.value = true;
+          fsCtx.beginPath();
+          if (isEraser.value) {
+            fsCtx.globalCompositeOperation = 'destination-out';
+            fsCtx.lineWidth = currentSize.value * 4;
+          } else {
+            fsCtx.globalCompositeOperation = 'source-over';
+            fsCtx.strokeStyle = currentColor.value;
+            fsCtx.lineWidth = currentSize.value;
+          }
+          ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+        };
+
+        const fsTouchDraw = (e) => {
+          if (!isPainting.value || !fsCtx) return;
+          const rect = fsCanvasRef.value.getBoundingClientRect();
+          const touch = e.touches[0];
+          fsCtx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+          fsCtx.stroke();
+        };
+
+        const stopFsDrawing = () => {
+          isPainting.value = false;
+        };
+
+        const saveCertificateAsImage = () => {
+          try {
+            const exportCanvas = document.createElement('canvas');
+            exportCanvas.width = 1200;
+            exportCanvas.height = 900;
+            const eCtx = exportCanvas.getContext('2d');
+
+            // 1. 绘制证书渐变背景
+            const grad = eCtx.createLinearGradient(0, 0, 1200, 900);
+            grad.addColorStop(0, '#FEF9C3');
+            grad.addColorStop(0.5, '#ECFDF5');
+            grad.addColorStop(1, '#E0F2FE');
+            eCtx.fillStyle = grad;
+            eCtx.fillRect(0, 0, 1200, 900);
+
+            // 2. 边框装饰
+            eCtx.strokeStyle = '#34D399';
+            eCtx.lineWidth = 8;
+            eCtx.setLineDash([20, 12]);
+            eCtx.strokeRect(30, 30, 1140, 840);
+            eCtx.setLineDash([]);
+
+            // 3. 标题与说明
+            eCtx.fillStyle = '#065F46';
+            eCtx.font = 'bold 36px Fredoka, Nunito, sans-serif';
+            eCtx.textAlign = 'center';
+            eCtx.fillText("🌟 Little Poet's Illustrated Certificate 🌟", 600, 90);
+
+            // 4. 诗歌卡片底衬
+            eCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            eCtx.fillRect(70, 130, 1060, 260);
+            eCtx.strokeStyle = '#A7F3D0';
+            eCtx.lineWidth = 3;
+            eCtx.strokeRect(70, 130, 1060, 260);
+
+            // 5. 填入诗歌文字
+            eCtx.fillStyle = '#1E293B';
+            eCtx.font = 'bold 28px serif';
+            eCtx.textAlign = 'left';
+            const l1 = `Today the weather is ${poemForm.value.line1 || '______'}.`;
+            const l2 = `The ${poemForm.value.line2 || '______'} sky is above me.`;
+            const l3 = `I can see ${poemForm.value.line3 || '______'}.`;
+            const l4 = `I feel ${poemForm.value.line4 || '______'} today.`;
+
+            eCtx.fillText(l1, 100, 185);
+            eCtx.fillText(l2, 100, 240);
+            eCtx.fillText(l3, 100, 295);
+            eCtx.fillText(l4, 100, 350);
+
+            // 6. 绘画展示区底衬
+            eCtx.fillStyle = '#FFFFFF';
+            eCtx.fillRect(70, 420, 1060, 390);
+            eCtx.strokeStyle = '#6EE7B7';
+            eCtx.lineWidth = 4;
+            eCtx.strokeRect(70, 420, 1060, 390);
+
+            // 7. 将自绘插画无缝合成进来
+            if (canvasRef.value) {
+              eCtx.drawImage(canvasRef.value, 80, 430, 1040, 370);
+            }
+
+            // 8. 证书底款
+            eCtx.fillStyle = '#94A3B8';
+            eCtx.font = '18px Nunito, sans-serif';
+            eCtx.textAlign = 'center';
+            eCtx.fillText("Weather in Rhythm • Primary ESL Resource Kit", 600, 845);
+
+            // 9. 触发安全本地下载
+            const dataUrl = exportCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            const safeName = (poemForm.value.line1 || 'poem').replace(/[^a-zA-Z0-9]/g, '_');
+            link.download = `My_Weather_Poem_${safeName}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+          } catch (err) {
+            console.error("Native export failed:", err);
+            if (canvasRef.value) {
+              window.open(canvasRef.value.toDataURL('image/png'), '_blank');
+            }
+          }
+        };
+
+        const createUtterance = (text) => {
+          const utterance = new SpeechSynthesisUtterance(text);
+          if (femaleVoices.value.length > 0) {
+            utterance.voice = femaleVoices.value[selectedVoiceIndex.value] || femaleVoices.value[0];
+          }
+          utterance.rate = 0.85;
+          utterance.pitch = 1.15;
+          utterance.volume = 1.0;
+          return utterance;
+        };
+
+        const speak = (text) => {
+          if (!('speechSynthesis' in window)) return;
+          stopAllAudio();
+          const u = createUtterance(text);
+          window.speechSynthesis.speak(u);
+        };
+
+        const flipCard = (card) => {
+          card.isFlipped = !card.isFlipped;
+          stopAllAudio();
+        };
+
+        const toggleSpeakWordOnly = (card) => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (card.isSpeakingFront || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const u = createUtterance(card.name);
+
+          u.onstart = () => { card.isSpeakingFront = true; };
+          u.onend = () => { card.isSpeakingFront = false; };
+          u.onerror = () => { card.isSpeakingFront = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const toggleSpeakExplanation = (card) => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (card.isSpeakingBack || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const u = createUtterance(card.sentence);
+
+          u.onstart = () => { card.isSpeakingBack = true; };
+          u.onend = () => { card.isSpeakingBack = false; };
+          u.onerror = () => { card.isSpeakingBack = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const testTeacherVoice = () => {
+          speak("Hello boys and girls! Today let's explore the wonderful weather together!");
+        };
+
+        const speakSingleWord = (word) => {
+          speak(word);
+        };
+
+        const toggleSpeakLyrics = () => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (isSpeakingLyrics.value || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const lyricsText = 'Sunny, sunny, touch the sky! Rainy, rainy, hands down low! Windy, windy, sway around! Cloudy, cloudy, turn around!';
+          const u = createUtterance(lyricsText);
+
+          u.onstart = () => { isSpeakingLyrics.value = true; };
+          u.onend = () => { isSpeakingLyrics.value = false; };
+          u.onerror = () => { isSpeakingLyrics.value = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const toggleReciteStevensonPoem = () => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (isSpeakingPoem.value || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const poemText = 'Rain, by Robert Louis Stevenson. The rain is raining all around, It falls on field and tree, It rains on the umbrellas here, And on the ships at sea.';
+          const u = createUtterance(poemText);
+
+          u.onstart = () => { isSpeakingPoem.value = true; };
+          u.onend = () => { isSpeakingPoem.value = false; };
+          u.onerror = () => { isSpeakingPoem.value = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const toggleSpeakCustomPoem = () => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (isSpeakingCustomPoem.value || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const text = `Today the weather is ${poemForm.value.line1}. The ${poemForm.value.line2} sky is above me. I can see ${poemForm.value.line3}. I feel ${poemForm.value.line4} today.`;
+          const u = createUtterance(text);
+
+          u.onstart = () => { isSpeakingCustomPoem.value = true; };
+          u.onend = () => { isSpeakingCustomPoem.value = false; };
+          u.onerror = () => { isSpeakingCustomPoem.value = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const toggleSpeakRhymeExplanation = () => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (isSpeakingRhyme.value || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            isSpeakingRhyme.value = false;
+            return;
+          }
+
+          stopAllAudio();
+          const text = "Listen closely! Tree and sea rhyme! They both end with the happy long 'ee' sound: tr-ee, and s-ea! They are sound friends!";
+          const u = createUtterance(text);
+
+          u.onstart = () => { isSpeakingRhyme.value = true; };
+          u.onend = () => { isSpeakingRhyme.value = false; };
+          u.onerror = () => { isSpeakingRhyme.value = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const pickWord = (w, exp) => {
+          activeWord.value = w;
+          activeWordExplanation.value = exp;
+          speak(w);
+        };
+
+        const toggleFlipRiddle = () => {
+          isFlipped.value = !isFlipped.value;
+          stopAllAudio();
+        };
+
+        const toggleSpeakRiddle = () => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (isSpeakingRiddle.value || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const u = createUtterance(currentRiddle.value.question);
+
+          u.onstart = () => { isSpeakingRiddle.value = true; };
+          u.onend = () => { isSpeakingRiddle.value = false; };
+          u.onerror = () => { isSpeakingRiddle.value = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const toggleSpeakAnswer = () => {
+          if (!('speechSynthesis' in window)) return;
+
+          if (isSpeakingAnswer.value || window.speechSynthesis.speaking) {
+            stopAllAudio();
+            return;
+          }
+
+          stopAllAudio();
+          const u = createUtterance(currentRiddle.value.answer);
+
+          u.onstart = () => { isSpeakingAnswer.value = true; };
+          u.onend = () => { isSpeakingAnswer.value = false; };
+          u.onerror = () => { isSpeakingAnswer.value = false; };
+
+          window.speechSynthesis.speak(u);
+        };
+
+        const nextRiddle = () => {
+          stopAllAudio();
+          isFlipped.value = false;
+          setTimeout(() => {
+            currentRiddleIndex.value = (currentRiddleIndex.value + 1) % riddles.length;
+          }, 250);
+        };
+
+        const toggleMusic = () => {
+          if (isPlayingMusic.value) {
+            if (bgAudio) bgAudio.pause();
+            synthTimeouts.forEach(t => clearTimeout(t));
+            synthTimeouts = [];
+            isPlayingMusic.value = false;
+            return;
+          }
+
+          stopAllAudio();
+
+          if (!bgAudio) {
+            bgAudio = new Audio('TASK 2.mp3');
+            bgAudio.onended = () => { isPlayingMusic.value = false; };
+          }
+
+          bgAudio.currentTime = 0;
+          const p = bgAudio.play();
+          if (p !== undefined) {
+            p.then(() => {
+              isPlayingMusic.value = true;
+            }).catch(() => {
+              playSynthesizedTune();
+            });
+          }
+        };
+
+        const playSynthesizedTune = () => {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          isPlayingMusic.value = true;
+
+          const playNote = (freq, start, duration) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.25, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + duration - 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(start);
+            osc.stop(start + duration);
+          };
+
+          const notes = [
+            { f: 392.00, d: 0.4 }, { f: 329.63, d: 0.4 },
+            { f: 392.00, d: 0.3 }, { f: 392.00, d: 0.3 }, { f: 329.63, d: 0.6 },
+            { f: 392.00, d: 0.4 }, { f: 329.63, d: 0.4 },
+            { f: 392.00, d: 0.3 }, { f: 392.00, d: 0.3 }, { f: 329.63, d: 0.6 },
+            { f: 440.00, d: 0.4 }, { f: 392.00, d: 0.4 },
+            { f: 440.00, d: 0.3 }, { f: 392.00, d: 0.3 }, { f: 329.63, d: 0.6 },
+            { f: 392.00, d: 0.3 }, { f: 329.63, d: 0.3 }, { f: 293.66, d: 0.3 }, { f: 261.63, d: 0.8 }
+          ];
+
+          let now = audioCtx.currentTime;
+          let totalTime = 0;
+          notes.forEach((n) => {
+            playNote(n.f, now + totalTime, n.d);
+            totalTime += n.d + 0.1;
+          });
+
+          const timer = setTimeout(() => { isPlayingMusic.value = false; }, totalTime * 1000);
+          synthTimeouts.push(timer);
+        };
+
+        const tabClass = (tab) => {
+          return currentTab.value === tab 
+            ? 'px-3.5 py-2 rounded-xl font-extrabold text-xs bg-amber-400 text-amber-950 shadow-xs border border-amber-300' 
+            : 'px-3.5 py-2 rounded-xl font-bold text-xs text-slate-600 hover:bg-white/80 transition';
+        };
+
+        const mobileTabClass = (tab) => {
+          return currentTab.value === tab ? 'text-amber-600 font-extrabold' : 'text-slate-400';
+        };
+
+        return {
+          currentTab,
+          showTeacherDrawer,
+          activeWord,
+          activeWordExplanation,
+          isPlayingMusic,
+          isBgMusicPlaying,
+          bgMusicVolume,
+          toggleBgMusic,
+          updateBgMusicVolume,
+          poemForm,
+          femaleVoices,
+          selectedVoiceIndex,
+          weatherCards,
+          isSpeakingLyrics,
+          isSpeakingRiddle,
+          isSpeakingAnswer,
+          isSpeakingPoem,
+          isSpeakingCustomPoem,
+          isSpeakingRhyme,
+          riddles,
+          currentRiddleIndex,
+          currentRiddle,
+          isFlipped,
+          flipCard,
+          toggleSpeakWordOnly,
+          toggleSpeakExplanation,
+          toggleFlipRiddle,
+          toggleSpeakLyrics,
+          toggleSpeakRiddle,
+          toggleSpeakAnswer,
+          toggleReciteStevensonPoem,
+          toggleSpeakCustomPoem,
+          toggleSpeakRhymeExplanation,
+          nextRiddle,
+          testTeacherVoice,
+          speakSingleWord,
+          pickWord,
+          toggleMusic,
+          tabClass,
+          mobileTabClass,
+          switchTab,
+          matchSuccess,
+          rhymeOptions,
+          checkRhymeMatch,
+          getOptionClass,
+          canvasRef,
+          fsCanvasRef,
+          brushColors,
+          currentColor,
+          currentSize,
+          setBrushSize,
+          hasDrawn,
+          isEraser,
+          selectBrush,
+          selectEraser,
+          startDrawing,
+          draw,
+          startTouchDrawing,
+          touchDraw,
+          stopDrawing,
+          clearCanvas,
+          showFullscreenCanvas,
+          openFullscreenDraw,
+          closeFullscreenDraw,
+          clearFullscreenCanvas,
+          startFsDrawing,
+          fsDraw,
+          startFsTouchDrawing,
+          fsTouchDraw,
+          stopFsDrawing,
+          saveCertificateAsImage
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
