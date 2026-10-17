@@ -1,182 +1,578 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>User Manual | Weather in Rhythm Resource Kit</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-  <style>
-    body { font-family: 'Nunito', sans-serif; }
-    h1, h2, h3, h4, .font-fun { font-family: 'Fredoka', cursive; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather in Rhythm | Teacher & Pupil User Manual</title>
+<style>
+  :root{
+    --sky:#eaf7ff;
+    --sky2:#d9efff;
+    --blue:#1f6fb2;
+    --navy:#173b5e;
+    --amber:#f7c948;
+    --amber2:#fff4c7;
+    --green:#56b88a;
+    --green2:#e8f8f0;
+    --purple:#8266c7;
+    --purple2:#f1edfb;
+    --ink:#243447;
+    --muted:#617184;
+    --line:#d8e6ef;
+    --white:#ffffff;
+    --rose:#e96b7d;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,var(--sky),#f8fcff 46%,#eef7fb);
+    line-height:1.6;
+  }
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    display:flex; justify-content:space-between; align-items:center; gap:16px;
+    padding:12px 22px;
+    background:rgba(255,255,255,.94);
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(8px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--navy)}
+  .brand .sun{font-size:30px}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{
+    display:inline-block; padding:9px 14px; border-radius:12px;
+    text-decoration:none; font-weight:700; font-size:13px;
+    border:1px solid var(--line); background:#fff; color:var(--navy);
+  }
+  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .container{max-width:1050px;margin:0 auto;padding:28px 20px 60px}
+  .hero{
+    background:#fff;border:2px solid #bfe4f8;border-radius:28px;
+    padding:34px; box-shadow:0 10px 30px rgba(38,94,132,.08);
+    position:relative;overflow:hidden;
+  }
+  .hero:after{
+    content:"☀️  ☁️  🌧️  💨";
+    position:absolute; right:24px; top:20px;
+    font-size:34px; opacity:.18; letter-spacing:10px;
+  }
+  .eyebrow{
+    display:inline-block;background:var(--amber2);color:#8a6200;
+    border:1px solid #f0d67d;border-radius:999px;padding:5px 11px;
+    font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em
+  }
+  h1{font-size:40px;line-height:1.15;margin:14px 0 6px;color:var(--navy)}
+  h2{color:var(--navy);font-size:27px;margin:0 0 12px}
+  h3{color:var(--navy);font-size:20px;margin:0 0 8px}
+  h4{color:var(--navy);font-size:16px;margin:12px 0 6px}
+  .subtitle{font-size:18px;color:var(--blue);font-weight:700;margin-bottom:10px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  .pill{background:#f4f9fc;border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+  .toc{
+    margin-top:22px;background:#fff;border-radius:22px;border:1px solid var(--line);
+    padding:20px;box-shadow:0 5px 18px rgba(40,80,100,.05)
+  }
+  .toc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .toc a{color:var(--blue);text-decoration:none;font-weight:700;font-size:13px;padding:7px 9px;border-radius:10px}
+  .toc a:hover{background:var(--sky)}
+  section{
+    margin-top:22px;background:#fff;border:1px solid var(--line);
+    border-radius:22px;padding:24px;box-shadow:0 5px 18px rgba(40,80,100,.04)
+  }
+  .callout{
+    border-left:5px solid var(--blue);background:#f1f9fe;
+    padding:13px 15px;border-radius:12px;margin:14px 0
+  }
+  .callout.warn{border-left-color:var(--amber);background:#fff9df}
+  .callout.green{border-left-color:var(--green);background:var(--green2)}
+  .callout.purple{border-left-color:var(--purple);background:var(--purple2)}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{border:1px solid var(--line);padding:10px 11px;vertical-align:top}
+  th{background:#eaf6fd;color:var(--navy);text-align:left}
+  ul,ol{padding-left:22px}
+  li{margin:5px 0}
+  .activity{
+    display:grid;grid-template-columns:140px 1fr;gap:18px;align-items:start;
+    border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0
+  }
+  .activity .badge{
+    min-height:118px;border-radius:16px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;font-weight:800;padding:12px
+  }
+  .a1{background:#fff5d9;color:#8a6200}.a2{background:#eaf4ff;color:#215f9a}.a3{background:#e9f8ef;color:#276d4d}
+  .step{
+    background:#fbfdfe;border:1px solid #e6eef3;border-radius:14px;padding:12px 14px;margin:8px 0
+  }
+  .small{font-size:12px;color:var(--muted)}
+  .label{font-weight:800;color:var(--navy)}
+  .codeish{
+    font-family:Consolas,monospace;background:#f6f8fa;border:1px solid #e3e8ec;
+    border-radius:8px;padding:2px 6px;font-size:12px
+  }
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 0 6px}
+  @media(max-width:700px){
+    .toc-grid{grid-template-columns:1fr}
+    .activity{grid-template-columns:1fr}
+    h1{font-size:32px}
+    .topbar{align-items:flex-start}
+  }
+  @media print{
+    body{background:#fff}
+    .topbar,.actions{display:none!important}
+    .container{max-width:none;padding:0}
+    .hero,section,.toc{box-shadow:none}
+    section{break-inside:avoid-page}
+    a{color:inherit;text-decoration:none}
+  }
+</style>
 </head>
-<body class="bg-gradient-to-b from-sky-50 via-slate-50 to-blue-50 text-slate-800 min-h-screen p-4 md:p-10 antialiased">
+<body>
 
-  <div class="max-w-4xl mx-auto bg-white rounded-3xl shadow-md border-2 border-sky-100 p-6 md:p-10 space-y-8">
-    
-    <!-- Header Banner -->
-    <div class="border-b-2 border-sky-100 pb-6 text-center space-y-3">
-      <div class="inline-flex items-center space-x-2 bg-amber-100 text-amber-900 px-4 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">
-        <span>📘 TEACHER & PUPIL IMPLEMENTATION GUIDE</span>
-      </div>
-      <h1 class="text-3xl md:text-4xl font-extrabold text-sky-950 font-fun">
-        Digital Resource Kit User Manual
-      </h1>
-      <p class="text-sm md:text-base font-bold text-sky-700">
-        Weather in Rhythm: A Digital Songs and Poems Resource
-      </p>
+<div class="topbar">
+  <div class="brand"><span class="sun">☀️</span><span>Weather in Rhythm — User Manual</span></div>
+  <div class="actions">
+    <a class="btn" href="index.html">← Back to Resource Kit</a>
+    <button class="btn primary" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <span class="eyebrow">Teacher & Pupil Implementation Guide</span>
+    <h1>Weather in Rhythm</h1>
+    <div class="subtitle">Teacher & Pupil User Manual</div>
+    <p><strong>A Hybrid Songs and Poems Resource Kit for Year 4 ESL</strong></p>
+    <p>
+      This manual explains how to prepare, navigate and implement the
+      <em>Weather in Rhythm</em> resource kit during a Year 4 ESL lesson.
+      It covers the digital website features, suggested physical teaching aids, assessment use,
+      teacher settings and troubleshooting.
+    </p>
+    <div class="meta">
+      <span class="pill">Year 4 ESL</span>
+            <span class="pill">Listening</span>
+      <span class="pill">Speaking</span>
+      <span class="pill">Reading</span>
+      <span class="pill">Writing</span>
+      <span class="pill">Digital + Physical</span>
     </div>
-
-    <!-- 1.0 Kit Overview -->
-    <section class="space-y-3">
-      <h2 class="text-xl font-bold text-sky-900 font-fun border-l-4 border-sky-500 pl-3">
-        1.0 Kit Overview
-      </h2>
-      <p class="text-sm leading-relaxed text-slate-600 font-medium">
-        <strong>Weather in Rhythm</strong> is a web-based digital resource kit. It promotes active, pupil-centred learning by combining musical rhythm, motor mimicry through <em>Total Physical Response (TPR)</em>, classic literature appreciation via Robert Louis Stevenson’s poem <em>"Rain"</em>, and creative expression through four-line poem writing paired with digital drawing.
-      </p>
-    </section>
-
-    <!-- 2.0 Lesson Architecture (60 Minutes) -->
-    <section class="space-y-4">
-      <h2 class="text-xl font-bold text-sky-900 font-fun border-l-4 border-amber-500 pl-3">
-        2.0 Lesson Architecture & Time Allocation (60 Minutes)
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-semibold">
-        
-        <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 flex flex-col justify-between">
-          <div>
-            <span class="text-amber-900 font-extrabold text-sm block mb-1">Activity 1 (15 Mins)</span>
-            <strong class="text-slate-800 text-xs block mb-2">Move with the Weather!</strong>
-            <p class="text-slate-600 font-normal leading-relaxed">
-              • Pupils explore 4 core weather vocabulary words.<br>
-              • Interact with 3D flashcards by flipping them to reveal example sentences.<br>
-              • Sing along to the rhythm while performing TPR actions.<br>
-              • Complete interactive 3D weather riddle challenges.
-            </p>
-          </div>
-          <span class="mt-3 text-[11px] text-amber-800 font-bold bg-amber-100/70 px-2 py-0.5 rounded-md inline-block">Focus: Listening & Speaking</span>
-        </div>
-
-        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 flex flex-col justify-between">
-          <div>
-            <span class="text-blue-900 font-extrabold text-sm block mb-1">Activity 2 (20 Mins)</span>
-            <strong class="text-slate-800 text-xs block mb-2">Weather Word Hunt</strong>
-            <p class="text-slate-600 font-normal leading-relaxed">
-              • Shared reading of Stevenson's classic poem "Rain" with gentle speech synthesis narration.<br>
-              • Click highlighted words to inspect contextual definitions and pronunciations.<br>
-              • Complete the /iː/ rhyming phoneme pair match challenge (tree – sea).
-            </p>
-          </div>
-          <span class="mt-3 text-[11px] text-blue-800 font-bold bg-blue-100/70 px-2 py-0.5 rounded-md inline-block">Focus: Reading & Phonics</span>
-        </div>
-
-        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 flex flex-col justify-between">
-          <div>
-            <span class="text-emerald-900 font-extrabold text-sm block mb-1">Activity 3 (20 Mins)</span>
-            <strong class="text-slate-800 text-xs block mb-2">Draw It, Write It! Studio</strong>
-            <p class="text-slate-600 font-normal leading-relaxed">
-              • Select vocabulary prompts from the interactive Word Bank.<br>
-              • Compose a personalized 4-line weather poem.<br>
-              • Draw illustrations using digital crayons or in fullscreen mode.<br>
-              • Export and download a high-resolution Little Poet's Certificate (PNG).
-            </p>
-          </div>
-          <span class="mt-3 text-[11px] text-emerald-800 font-bold bg-emerald-100/70 px-2 py-0.5 rounded-md inline-block">Focus: Writing & Creating</span>
-        </div>
-
-      </div>
-      <p class="text-xs text-slate-500 font-bold italic text-right">
-        * The remaining 5 minutes are designated for Closure, Exit Ticket evaluation, and moral reflections.
-      </p>
-    </section>
-
-    <!-- 3.0 Interactive Features Guide -->
-    <section class="space-y-4">
-      <h2 class="text-xl font-bold text-sky-900 font-fun border-l-4 border-indigo-500 pl-3">
-        3.0 Interactive Features Operational Guide
-      </h2>
-
-      <div class="space-y-3 text-xs md:text-sm text-slate-700">
-        
-        <!-- BGM -->
-        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
-          <h3 class="font-bold text-sky-950 text-sm flex items-center">
-            <i class="fa-solid fa-music text-sky-600 mr-2"></i> 3.1 Background Music Controller (BGM)
-          </h3>
-          <p class="text-slate-600 leading-relaxed font-normal">
-            Located on the top navigation bar. Click the <strong>BGM</strong> toggle button to initiate soft background arpeggio music for classroom ambience. Adjust the output level smoothly between 0% and 100% using the inline volume slider.
-          </p>
-        </div>
-
-        <!-- 3D Flashcards & Voice Controls -->
-        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
-          <h3 class="font-bold text-sky-950 text-sm flex items-center">
-            <i class="fa-solid fa-volume-high text-amber-600 mr-2"></i> 3.2 Speech Synthesis & 3D Flashcards (Activity 1)
-          </h3>
-          <p class="text-slate-600 leading-relaxed font-normal">
-            Click any weather flashcard to trigger a 3D flip animation. The back of each card displays full-sentence usage and physical movement cues. All audio buttons include a pause toggle, allowing the teacher to regulate pronunciation pacing cleanly.
-          </p>
-        </div>
-
-        <!-- Rhyme Match Challenge -->
-        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
-          <h3 class="font-bold text-sky-950 text-sm flex items-center">
-            <i class="fa-solid fa-bell text-emerald-600 mr-2"></i> 3.3 Rhyme Match Challenge (Activity 2)
-          </h3>
-          <p class="text-slate-600 leading-relaxed font-normal">
-            Pupils listen to the ending sound of the target word <strong>tree</strong> and select its rhyming counterpart from the choices on the right (<strong>sea</strong>). Correct selections trigger a celebratory badge and encouraging automated speech feedback.
-          </p>
-        </div>
-
-        <!-- Drawing Studio & Certificate Export -->
-        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
-          <h3 class="font-bold text-sky-950 text-sm flex items-center">
-            <i class="fa-solid fa-palette text-purple-600 mr-2"></i> 3.4 Drawing Studio & Native PNG Certificate Export (Activity 3)
-          </h3>
-          <p class="text-slate-600 leading-relaxed font-normal">
-            • <strong>Palette & Stroke Sizing:</strong> Pupils can select from crayon colors, stroke thicknesses (Fine, Normal, Bold), and an Eraser tool.<br>
-            • <strong>Fullscreen Drawing Mode:</strong> Click the <em>Fullscreen</em> button for expanded drawing space, and click <em>Save & Exit Fullscreen</em> to preserve and sync the artwork back.<br>
-            • <strong>Download Certificate:</strong> Clicking <strong>Save My Poem & Drawing (Download PNG)</strong> renders an offline high-resolution certificate directly in browser memory, bypassing local cross-origin restrictions.
-          </p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 4.0 Teacher Zone Settings -->
-    <section class="space-y-3">
-      <h2 class="text-xl font-bold text-sky-900 font-fun border-l-4 border-rose-500 pl-3">
-        4.0 Teacher Zone Settings
-      </h2>
-      <p class="text-sm leading-relaxed text-slate-600 font-medium">
-        Teachers can access the <strong>Teacher Zone</strong> panel in the upper-right corner. This drawer houses the speech synthesis voice selector (tuned to a gentle cadence suitable for primary learners) alongside a direct shortcut link to this user manual.
-      </p>
-    </section>
-
-    <!-- 5.0 System Requirements & Offline Readiness -->
-    <section class="space-y-3">
-      <h2 class="text-xl font-bold text-sky-900 font-fun border-l-4 border-teal-500 pl-3">
-        5.0 Technical Requirements & Offline Operation
-      </h2>
-      <div class="bg-sky-50/70 p-4 rounded-2xl border border-sky-200 text-xs text-slate-600 space-y-2 leading-relaxed">
-        <p>• <strong>Supported Browsers:</strong> Current versions of Google Chrome, Microsoft Edge, or Mozilla Firefox.</p>
-        <p>• <strong>Offline Compatibility:</strong> This kit runs locally as a standalone file. All audio synthesis, interactive canvas mechanics, and certificate export operations function on the teacher's machine without requiring a high-speed internet connection during class.</p>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <div class="border-t-2 border-slate-100 pt-5 text-center text-xs text-slate-400 font-bold">
-      Weather in Rhythm • Songs & Poems Resource Kit
-    </div>
-
   </div>
 
+  <div class="toc">
+    <h3>Contents</h3>
+    <div class="toc-grid">
+      <a href="#overview">1.0 Kit Overview</a>
+      <a href="#components">2.0 Components of the Resource Kit</a>
+      <a href="#preparation">3.0 Before-Class Preparation</a>
+      <a href="#navigation">4.0 Website Navigation Guide</a>
+      <a href="#implementation">5.0 Lesson Architecture & Implementation</a>
+      <a href="#features">6.0 Interactive Features Operational Guide</a>
+      <a href="#physical">7.0 Physical Teaching Aids Guide</a>
+      <a href="#assessment">8.0 Assessment Guide</a>
+      <a href="#teacherzone">9.0 Teacher Zone</a>
+      <a href="#technical">10.0 Technical Requirements</a>
+      <a href="#troubleshooting">11.0 Troubleshooting</a>
+      <a href="#care">12.0 Classroom Use & Accessibility Tips</a>
+      <a href="#credits">13.0 References & Credits</a>
+    </div>
+  </div>
+
+  <section id="overview">
+    <h2>1.0 Kit Overview</h2>
+    <p>
+      <strong>Weather in Rhythm</strong> is a hybrid digital and physical Songs and Poems Resource Kit
+      designed for Year 4 ESL pupils. The kit combines weather vocabulary, movement,
+      singing, poetry reading, rhyme recognition, creative writing and digital drawing.
+    </p>
+    <p>
+      The digital website is organised into three connected activities:
+      <strong>Move with the Weather!</strong>, <strong>Weather Word Hunt</strong>, and
+      <strong>Draw It, Write It! Studio</strong>. The activities progress from language input and
+      guided practice to creative production.
+    </p>
+
+    <div class="callout green">
+      <strong>Lesson progression:</strong><br>
+      Listen → Speak → Sing → Move → Read → Notice → Rhyme → Write → Draw → Recite
+    </div>
+
+    <h3>Learning Outcomes</h3>
+    <p>By the end of the lesson, pupils should be able to:</p>
+    <ol>
+      <li>Identify and pronounce four core weather words: <em>sunny, rainy, windy</em> and <em>cloudy</em>.</li>
+      <li>Identify key vocabulary and recognise the rhyming pair <em>tree–sea</em> in Robert Louis Stevenson’s poem <em>Rain</em>.</li>
+      <li>Create and present a simple four-line weather poem using suitable descriptive language.</li>
+    </ol>
+  </section>
+
+  <section id="components">
+    <h2>2.0 Components of the Resource Kit</h2>
+
+    <h3>2.1 Digital Components</h3>
+    <table>
+      <tr><th>Digital Component</th><th>Purpose</th></tr>
+      <tr><td>Home Page</td><td>Provides access to Activities 1–3, BGM control, voice test and Teacher Zone.</td></tr>
+      <tr><td>Interactive Weather Flip Cards</td><td>Introduces weather vocabulary, example sentences, pronunciation and movement cues.</td></tr>
+      <tr><td><em>Move with the Weather!</em> Song Panel</td><td>Supports singing and TPR movement using the tune of <em>Rain, Rain, Go Away</em>.</td></tr>
+      <tr><td>Weather Riddle Challenge</td><td>Provides formative vocabulary recognition practice through flip-card riddles.</td></tr>
+      <tr><td><em>Rain</em> Poem Panel</td><td>Supports shared reading, speech synthesis recital, vocabulary exploration and pronunciation.</td></tr>
+      <tr><td>Rhyme Match Challenge</td><td>Guides pupils to recognise the long /iː/ rhyme in <em>tree–sea</em>.</td></tr>
+      <tr><td>Interactive Word Bank</td><td>Provides weather, descriptive and feeling words for poem creation.</td></tr>
+      <tr><td>Four-Line Poem Builder</td><td>Provides sentence frames for guided creative writing.</td></tr>
+      <tr><td>Digital Drawing Studio</td><td>Allows pupils to illustrate their weather poem using colour, brush-size and eraser tools.</td></tr>
+      <tr><td>Poem Recital</td><td>Reads the pupil’s completed poem aloud using speech synthesis.</td></tr>
+      <tr><td>PNG Certificate Export</td><td>Downloads the pupil’s completed poem and illustration as an image file.</td></tr>
+      <tr><td>Teacher Zone</td><td>Provides voice selection and a direct link to this User Manual.</td></tr>
+    </table>
+
+    <h3>2.2 Physical Companion Materials</h3>
+    <table>
+      <tr><th>Physical Material</th><th>Suggested Use</th></tr>
+      <tr><td>Weather Flashcards</td><td>Quick recognition of sunny, rainy, windy and cloudy.</td></tr>
+      <tr><td>Action Cards</td><td>Reinforces the four TPR movements used in Activity 1.</td></tr>
+      <tr><td>Printed Poem Card</td><td>Supports shared or pair reading of <em>Rain</em>.</td></tr>
+      <tr><td>Weather Word Hunt Worksheet</td><td>Allows pupils to record vocabulary and rhyme findings.</td></tr>
+      <tr><td>Rhyme Cards</td><td>Supports hands-on matching of <em>tree–sea</em> and optional extension words.</td></tr>
+      <tr><td>Word Bank Cards</td><td>Provides extra support for pupils who need physical vocabulary prompts.</td></tr>
+      <tr><td>My Weather Poem Worksheet</td><td>Provides an offline or handwriting alternative to the digital poem builder.</td></tr>
+      <tr><td>Assessment Checklist</td><td>Supports teacher observation across Activities 1–3.</td></tr>
+      <tr><td>Exit Ticket</td><td>Provides a short closure check during lesson closure.</td></tr>
+    </table>
+  </section>
+
+  <section id="preparation">
+    <h2>3.0 Before-Class Preparation</h2>
+    <ol>
+      <li>Open the <strong>Weather in Rhythm</strong> website on the teacher’s laptop or classroom computer.</li>
+      <li>Connect the device to the projector or interactive display.</li>
+      <li>Check the classroom speakers and adjust the BGM volume to a comfortable level.</li>
+      <li>Use <strong>Test Voice</strong> to confirm that speech synthesis is working.</li>
+      <li>Open <strong>Teacher Zone</strong> and select an available English voice if needed.</li>
+      <li>Test the weather cards, poem recital, rhyme challenge and drawing tools before the lesson.</li>
+      <li>Prepare the physical companion materials and print enough worksheets for the class.</li>
+      <li>Keep a printed poem and poem-writing worksheet available as a backup if a digital device is unavailable.</li>
+    </ol>
+    <div class="callout warn">
+      <strong>Important:</strong> Browser voice options vary by computer and operating system.
+      The teacher should test the selected voice on the actual classroom device before pupils arrive.
+    </div>
+  </section>
+
+  <section id="navigation">
+    <h2>4.0 Website Navigation Guide</h2>
+    <table>
+      <tr><th>Navigation Item</th><th>Function</th></tr>
+      <tr><td>Home</td><td>Returns to the main landing page.</td></tr>
+      <tr><td>Act 1: Move!</td><td>Opens Activity 1: <em>Move with the Weather!</em></td></tr>
+      <tr><td>Act 2: Poem Hunt</td><td>Opens Activity 2: <em>Weather Word Hunt</em>.</td></tr>
+      <tr><td>Act 3: Studio</td><td>Opens Activity 3: <em>Draw It, Write It! Studio</em>.</td></tr>
+      <tr><td>BGM</td><td>Starts or pauses the background music. The slider controls volume.</td></tr>
+      <tr><td>Test Voice</td><td>Plays a short teacher-voice test sentence.</td></tr>
+      <tr><td>Teacher Zone</td><td>Opens the voice settings panel and the User Manual button.</td></tr>
+    </table>
+    <div class="callout">
+      On smaller screens, the website also provides a simplified bottom navigation bar for
+      Home and Activities 1–3.
+    </div>
+  </section>
+
+  <section id="implementation">
+    <h2>5.0 Lesson Architecture & Implementation</h2>
+
+    <div class="activity">
+      <div class="badge a1">🎵<br>Activity 1</div>
+      <div>
+        <h3>5.1 Move with the Weather!</h3>
+        <p><strong>Focus:</strong> Listening & Speaking</p>
+        <p><strong>Target words:</strong> sunny, rainy, windy, cloudy</p>
+
+        <div class="step"><span class="label">Step 1 — Meet the Weather Friends:</span>
+          Pupils tap or flip the four digital weather cards. They listen to the pronunciation,
+          read the example sentence and notice the movement cue on the back of each card.</div>
+
+        <div class="step"><span class="label">Step 2 — Practise the Actions:</span>
+          The teacher models the four TPR actions:
+          <em>touch the sky, hands down low, sway around</em> and <em>turn around</em>.
+          Physical action cards may be displayed at the same time.</div>
+
+        <div class="step"><span class="label">Step 3 — Sing & Move:</span>
+          The teacher opens the <em>Move with the Weather!</em> panel and plays the accompaniment.
+          Pupils sing:
+          <em>Sunny, sunny, touch the sky; Rainy, rainy, hands down low; Windy, windy, sway around; Cloudy, cloudy, turn around.</em></div>
+
+        <div class="step"><span class="label">Step 4 — Weather Riddle Challenge:</span>
+          Pupils listen to or read each riddle, predict the weather word, then flip the riddle card
+          to reveal the answer. The teacher uses <strong>Next Riddle</strong> to continue.</div>
+
+        <p><strong>Suggested assessment:</strong> Observe whether pupils can identify the four target words,
+        pronounce them understandably and perform the matching action.</p>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="badge a2">🔍<br>Activity 2</div>
+      <div>
+        <h3>5.2 Weather Word Hunt</h3>
+        <p><strong>Focus:</strong> Reading & Phonics</p>
+
+        <div class="step"><span class="label">Step 1 — Shared Poetry Reading:</span>
+          Display Robert Louis Stevenson’s <em>Rain</em>. Pupils follow the text while the teacher
+          reads it or activates <strong>Listen to Poem (Gentle Recital)</strong>.</div>
+
+        <div class="step"><span class="label">Step 2 — Explore Key Words:</span>
+          Pupils tap highlighted words such as <em>rain, raining, field, tree, umbrellas, ships</em>
+          and <em>sea</em>. The website displays a short explanation and provides a pronunciation button.</div>
+
+        <div class="step"><span class="label">Step 3 — Rhyme Match Challenge:</span>
+          Pupils listen to the ending sound in <em>tree</em> and choose its rhyming partner.
+          The correct match is <strong>tree–sea</strong>. The website also offers <em>bee</em> and <em>see</em>
+          as additional /iː/ examples.</div>
+
+        <div class="step"><span class="label">Step 4 — Physical Extension:</span>
+          Pupils complete the printed Weather Word Hunt worksheet or match physical rhyme cards
+          in pairs.</div>
+
+        <p><strong>Suggested assessment:</strong> Check whether pupils can identify relevant poem words
+        and recognise <em>tree–sea</em> as a rhyming pair.</p>
+      </div>
+    </div>
+
+    <div class="activity">
+      <div class="badge a3">🎨<br>Activity 3</div>
+      <div>
+        <h3>5.3 Draw It, Write It! Studio</h3>
+        <p><strong>Focus:</strong> Writing, Drawing & Speaking</p>
+
+        <div class="step"><span class="label">Step 1 — Choose Words:</span>
+          Pupils use the Interactive Word Bank. Weather choices include
+          <em>sunny, rainy, windy, cloudy, stormy</em> and <em>snowy</em>.
+          Descriptive choices include <em>bright, grey, warm, cold, strong</em> and <em>soft</em>.
+          Feeling choices include <em>cheerful, happy, calm, excited</em> and <em>peaceful</em>.</div>
+
+        <div class="step"><span class="label">Step 2 — Build a Four-Line Poem:</span>
+          Pupils complete the guided lines:
+          <br>1. Today the weather is ______.
+          <br>2. The ______ sky is above me.
+          <br>3. I can see ______.
+          <br>4. I feel ______ today.</div>
+
+        <div class="step"><span class="label">Step 3 — Draw:</span>
+          Pupils create an illustration using the built-in drawing tools.
+          They may select a colour, choose Fine / Normal / Bold stroke size, use the eraser,
+          clear the canvas, or open the Fullscreen Drawing Studio.</div>
+
+        <div class="step"><span class="label">Step 4 — Save Fullscreen Drawing:</span>
+          In fullscreen mode, pupils draw with more space and click
+          <strong>Save & Exit Fullscreen</strong> to return the artwork to the main activity.</div>
+
+        <div class="step"><span class="label">Step 5 — Recite:</span>
+          Pupils select <strong>Recite My Poem Aloud!</strong> to hear their completed poem.
+          The teacher may then invite pupils to perform their poems orally.</div>
+
+        <div class="step"><span class="label">Step 6 — Export:</span>
+          Select <strong>Save My Poem & Drawing (Download PNG)</strong> to create a downloadable
+          illustrated poem certificate.</div>
+
+        <p><strong>Suggested assessment:</strong> Check that the pupil produces four lines,
+        uses appropriate descriptive language and can share the poem orally.</p>
+      </div>
+    </div>
+
+    <h3>5.4 Closure</h3>
+    <p>
+      Review the four core weather words, ask pupils to recall the <em>tree–sea</em> rhyme,
+      and use the physical Exit Ticket or a short oral reflection. Pupils may briefly share
+      one word or idea they learned from the lesson.
+    </p>
+  </section>
+
+  <section id="features">
+    <h2>6.0 Interactive Features Operational Guide</h2>
+
+    <h3>6.1 Background Music (BGM)</h3>
+    <p>
+      The BGM control is located in the top navigation area on larger screens.
+      Select <strong>BGM</strong> to start or pause the background audio.
+      Use the adjacent slider to change the volume from low to high.
+      Keep the music soft enough for pupils to hear instructions and speech playback clearly.
+    </p>
+
+    <h3>6.2 Speech Synthesis</h3>
+    <p>
+      Speech synthesis is used for weather-word pronunciation, weather-card sentences,
+      song lyrics, riddles, the Stevenson poem, rhyme explanations and the pupil-created poem.
+      Selecting a speaking button while another item is playing will stop the previous speech before
+      the new speech begins.
+    </p>
+
+    <h3>6.3 Interactive Flip Cards</h3>
+    <p>
+      Tap a weather card to rotate it and display an example sentence and movement cue.
+      Use <strong>Listen</strong> for the word and <strong>Read Sentence</strong> for the card explanation.
+      Tap the card again to return to the front.
+    </p>
+
+    <h3>6.4 Weather Riddle Cards</h3>
+    <p>
+      Read or play the riddle, ask pupils to predict the answer, then tap the card to reveal it.
+      Select <strong>Next Riddle</strong> for another item.
+    </p>
+
+    <h3>6.5 Interactive Poem Vocabulary</h3>
+    <p>
+      In Activity 2, highlighted poem words are clickable. Selecting a word opens a short meaning prompt.
+      Use <strong>Pronounce</strong> to hear the selected word.
+    </p>
+
+    <h3>6.6 Rhyme Match</h3>
+    <p>
+      Pupils select one of the available options to match the target word <em>tree</em>.
+      Correct and incorrect choices provide immediate visual feedback.
+      <strong>Hear Why They Rhyme</strong> provides an audio explanation.
+    </p>
+
+    <h3>6.7 Drawing Tools</h3>
+    <p>
+      Pupils can choose from the available colours, change the brush size, activate the eraser,
+      clear the drawing, or use fullscreen mode. For best results on touch devices, pupils should draw
+      slowly and avoid scrolling while drawing.
+    </p>
+
+    <h3>6.8 PNG Export</h3>
+    <p>
+      The website can generate a PNG containing the pupil’s poem and illustration.
+      The browser must allow file downloads. Teachers should check the device’s Downloads folder
+      after the export is completed.
+    </p>
+  </section>
+
+  <section id="physical">
+    <h2>7.0 Physical Teaching Aids Guide</h2>
+    <p>
+      The physical resources complement the digital website and allow the lesson to continue even when
+      pupils are not using individual devices.
+    </p>
+    <table>
+      <tr><th>Material</th><th>When to Use</th><th>Teacher Action</th></tr>
+      <tr><td>Weather Flashcards</td><td>Activity 1 introduction / quick review</td><td>Show a card; pupils say the word and perform the action.</td></tr>
+      <tr><td>Action Cards</td><td>Activity 1 TPR practice</td><td>Match each movement cue to the weather word.</td></tr>
+      <tr><td>Printed Poem Card</td><td>Activity 2 shared reading</td><td>Give pairs or groups a physical copy while the digital poem is projected.</td></tr>
+      <tr><td>Word Hunt Worksheet</td><td>Activity 2 practice</td><td>Pupils record key words and the rhyming pair.</td></tr>
+      <tr><td>Rhyme Cards</td><td>Activity 2 extension</td><td>Pupils physically match <em>tree</em> and <em>sea</em>.</td></tr>
+      <tr><td>Word Bank Cards</td><td>Activity 3 support</td><td>Provide prompts to pupils who need help generating ideas.</td></tr>
+      <tr><td>My Weather Poem Worksheet</td><td>Activity 3 alternative</td><td>Use when pupils write by hand instead of using the digital poem builder.</td></tr>
+      <tr><td>Assessment Checklist</td><td>Throughout lesson</td><td>Record pupil achievement while circulating.</td></tr>
+      <tr><td>Exit Ticket</td><td>Closure</td><td>Collect one short response from each pupil.</td></tr>
+    </table>
+  </section>
+
+  <section id="assessment">
+    <h2>8.0 Assessment Guide</h2>
+    <table>
+      <tr><th>Stage</th><th>Evidence</th><th>Suggested Success Indicator</th></tr>
+      <tr><td>Activity 1</td><td>Weather-card responses, song participation, TPR actions, riddle responses</td><td>Identifies and pronounces the four core weather words and performs the matching movement.</td></tr>
+      <tr><td>Activity 2</td><td>Word Hunt responses and Rhyme Match</td><td>Identifies key poem vocabulary and correctly recognises <em>tree–sea</em>.</td></tr>
+      <tr><td>Activity 3</td><td>Completed four-line poem, drawing and recital</td><td>Creates four lines using suitable vocabulary and presents the poem understandably.</td></tr>
+      <tr><td>Closure</td><td>Exit Ticket / oral reflection</td><td>Recalls at least one weather word, rhyme or learning point from the lesson.</td></tr>
+    </table>
+  </section>
+
+  <section id="teacherzone">
+    <h2>9.0 Teacher Zone</h2>
+    <p>
+      Open <strong>Teacher Zone</strong> from the upper-right navigation area.
+      The panel provides an English speech-synthesis voice selector and a
+      <strong>View User Manual</strong> button.
+    </p>
+    <p>
+      The website automatically filters available English voices on the device where possible.
+      The selected speech output uses a slower classroom-friendly rate and slightly raised pitch.
+      Because the available voice names depend on the operating system and browser, the exact list may
+      differ from one device to another.
+    </p>
+    <div class="callout purple">
+      <strong>User Manual link:</strong> the website expects this file to be named
+      <span class="codeish">Manual_Pengguna.html</span> and stored in the same folder as
+      <span class="codeish">index.html</span>.
+    </div>
+  </section>
+
+  <section id="technical">
+    <h2>10.0 Technical Requirements</h2>
+    <table>
+      <tr><th>Item</th><th>Recommendation</th></tr>
+      <tr><td>Device</td><td>Laptop or desktop computer; tablet may also be used for pupil drawing.</td></tr>
+      <tr><td>Display</td><td>Projector, classroom display or interactive whiteboard.</td></tr>
+      <tr><td>Audio</td><td>Working speakers at a comfortable classroom volume.</td></tr>
+      <tr><td>Browser</td><td>A current version of Google Chrome or Microsoft Edge is recommended.</td></tr>
+      <tr><td>Speech</td><td>Requires browser/device support for the Web Speech SpeechSynthesis feature and at least one available English system voice.</td></tr>
+      <tr><td>Drawing</td><td>Mouse, touchpad or touch screen.</td></tr>
+      <tr><td>Downloads</td><td>The browser must permit PNG file downloads.</td></tr>
+    </table>
+
+    <div class="callout warn">
+      <strong>Internet note:</strong> the current website build loads some interface libraries, icons
+      and fonts from online CDN services. Therefore, a working internet connection is recommended for
+      the full intended appearance and functionality unless those dependencies are later bundled locally.
+      Do not assume that every feature will work completely offline on every device.
+    </div>
+  </section>
+
+  <section id="troubleshooting">
+    <h2>11.0 Troubleshooting</h2>
+    <table>
+      <tr><th>Issue</th><th>Suggested Solution</th></tr>
+      <tr><td>No speech playback</td><td>Check device volume, confirm that the browser supports speech synthesis, open Teacher Zone and select another available English voice, then use Test Voice.</td></tr>
+      <tr><td>Voice sounds different on another computer</td><td>This is normal. System voices vary by operating system and browser.</td></tr>
+      <tr><td>BGM is too loud</td><td>Reduce the BGM volume slider or pause BGM during spoken instructions.</td></tr>
+      <tr><td>Images or icons are missing</td><td>Confirm that all PNG assets are in the correct folder and that the internet connection is available for fallback icons.</td></tr>
+      <tr><td>Drawing does not respond</td><td>Try the mouse/touchpad, refresh the page, or reopen Activity 3. On touch devices, avoid accidental page scrolling while drawing.</td></tr>
+      <tr><td>Fullscreen artwork does not return</td><td>Use <strong>Save & Exit Fullscreen</strong> rather than closing the browser tab.</td></tr>
+      <tr><td>PNG does not download</td><td>Check browser download permissions and the device’s Downloads folder.</td></tr>
+      <tr><td>User Manual button does not open</td><td>Confirm that <span class="codeish">Manual_Pengguna.html</span> is uploaded beside <span class="codeish">index.html</span> and that the file name matches exactly.</td></tr>
+      <tr><td>Website layout is too small</td><td>Use browser fullscreen mode, increase zoom, or project the page onto a larger display.</td></tr>
+    </table>
+  </section>
+
+  <section id="care">
+    <h2>12.0 Classroom Use & Accessibility Tips</h2>
+    <ul>
+      <li>Keep audio at a safe and comfortable classroom volume.</li>
+      <li>Pause BGM whenever pupils need to focus on pronunciation or teacher instructions.</li>
+      <li>Allow pupils who are uncomfortable performing alone to sing or recite with a partner or group.</li>
+      <li>Use the physical word bank and poem template for pupils who need additional writing support.</li>
+      <li>Allow more proficient pupils to replace the sentence frames with their own lines or add simple rhyme.</li>
+      <li>Use printed materials as a backup if internet, audio or display equipment fails.</li>
+    </ul>
+  </section>
+
+  <section id="credits">
+    <h2>13.0 References & Credits</h2>
+    <p>
+      <strong>Selected poem:</strong> Robert Louis Stevenson, <em>Rain</em>, from
+      <em>A Child’s Garden of Verses</em> (1885).
+    </p>
+    <p>
+      <strong>Song adaptation:</strong> <em>Move with the Weather!</em>, adapted for classroom use
+      to the familiar tune of the traditional nursery rhyme <em>Rain, Rain, Go Away</em>.
+    </p>
+    <p>
+      <strong>Digital resource:</strong> Weather in Rhythm — Songs and Poems Resource Kit for Year 4 ESL.
+    </p>
+    <p class="small">
+      Add your final APA 7 references, illustration credits and any required AI/digital-tool disclosure
+      according to your lecturer’s academic-integrity requirements before submission.
+    </p>
+  </section>
+
+  <footer>
+    Weather in Rhythm • Teacher & Pupil User Manual • Year 4 ESL
+  </footer>
+
+</div>
 </body>
 </html>
